@@ -1,0 +1,14 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sys="clr-namespace:System;assembly=mscorlib">
+
+    <sys:String x:Key="LOC_ESMETADATA_ExtraMetadataIntegration">ExtraMetadata Integration:</sys:String>
+    <sys:String x:Key="LOC_ESMETADATA_CopyExtraResources">Copy video and logo To ExtraMetadata game folder when Links are provided by EmulationStation</sys:String>
+    <sys:String x:Key="LOC_ESMETADATA_OverwriteExisting">Overwrite existing files</sys:String>
+    <sys:String x:Key="LOC_ESMETADATA_GetFavorites">Import 'Favorite' mark when 'Tags' is providing by EmulationStation</sys:String>
+
+    <sys:String x:Key="LOC_ESMETADATA_ExtraMetadataIntegrationHint">* Such resources as VideoTrailer or Game Logo are provided by ExtraMetadata extension and does not suport by Metadata Source API.
+
+    EmulationStation Metadata Source may copy this resources to extension folder automatically during bulk Metadata importing if 'Links' import is enabled for this source.</sys:String>
+
+</ResourceDictionary>

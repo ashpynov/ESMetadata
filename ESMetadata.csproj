@@ -9,20 +9,35 @@
         <DebugType>portable</DebugType>
   </PropertyGroup>
   <ItemGroup>
-    <ApplicationDefinition Remove="sources/App.xaml" />
+    <ApplicationDefinition Remove="App.xaml" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="PlayniteSDK" Version="6.11.0" />
+    <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
   </ItemGroup>
   <ItemGroup>
     <None Include="extension.yaml">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="icon.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
+      <None Include="packages.config">
+          <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+  </ItemGroup>
+  <ItemGroup>
+      <None Include="icon.png">
+          <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+  </ItemGroup>
+  <ItemGroup>
+      <None Include="Localization/*.*">
+          <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+  </ItemGroup>
+  <ItemGroup>
+      <None Include="LICENSE">
+          <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
   </ItemGroup>
 </Project>

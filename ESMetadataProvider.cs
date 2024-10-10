@@ -158,19 +158,19 @@ namespace ESMetadata
         => ToMetadataFile(
             MetadataField.CoverImage.ToString(),
             esLibrary.GameData.GetMultiField(MetadataField.CoverImage),
-            484, 680);
+            Settings.GetCoverImageMaxSize().Width, Settings.GetCoverImageMaxSize().Height);
 
         public override MetadataFile GetIcon(GetMetadataFieldArgs args)
         => ToMetadataFile(
             MetadataField.Icon.ToString(),
             esLibrary.GameData.GetMultiField(MetadataField.Icon),
-            200, 200);
+            Settings.GetIconMaxSize().Width, Settings.GetIconMaxSize().Height);
 
         public override MetadataFile GetBackgroundImage(GetMetadataFieldArgs args)
         => ToMetadataFile(
             MetadataField.BackgroundImage.ToString(),
             esLibrary.GameData.GetMultiField(MetadataField.BackgroundImage),
-            1920, 1080);
+            Settings.GetBackgroundImageMaxSize().Width, Settings.GetBackgroundImageMaxSize().Height);
 
         public override IEnumerable<MetadataProperty> GetGenres(GetMetadataFieldArgs args)
         => ToMetadataProperty(esLibrary.GameData.GetField(MetadataField.Genres), '/');

@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Drawing;
+using System.Drawing.Text;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -244,13 +245,39 @@ namespace ESMetadata.Settings
             }
         }
 
+        private bool downscaleImage = true;
+        public bool DownscaleImage
+        {
+            get => downscaleImage;
+            set
+            {
+                downscaleImage = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public int IconMaxWidth { get; set; } = 200;
+        public int IconMaxHeight { get; set; } = 200;
+
+        public int CoverImageMaxWidth { get; set; } = 484;
+        public int CoverImageMaxHeight { get; set; } = 680;
+        public int BackgroundImageMaxWidth { get; set; } = 1920;
+        public int BackgroundImageMaxHeight { get; set; } = 1080;
+
+        private Size Unlimited = new Size(int.MaxValue, int.MaxValue);
+
+        public Size GetIconMaxSize() => DownscaleImage ? new Size(IconMaxWidth, IconMaxHeight ) : Unlimited;
+        public Size GetCoverImageMaxSize() => DownscaleImage ? new Size(CoverImageMaxWidth, CoverImageMaxHeight) : Unlimited;
+        public Size GetBackgroundImageMaxSize() => DownscaleImage ? new Size(BackgroundImageMaxWidth, BackgroundImageMaxHeight) : Unlimited;
+
         public bool BestMatchWithDesc { get; set; } = true;
+        public bool IgnoreArticles { get; set; } = true;
 
         public void SetupSourceFields()
         {
             IconSource = SetupField(IconSource, MetadataField.Icon);
             CoverImageSource = SetupField(CoverImageSource, MetadataField.CoverImage);
-            BackgroundImageSource =SetupField(BackgroundImageSource, MetadataField.BackgroundImage);
+            BackgroundImageSource = SetupField(BackgroundImageSource, MetadataField.BackgroundImage);
         }
 
     }

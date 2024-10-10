@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reflection;
 using System.Windows.Documents;
@@ -116,7 +117,23 @@ namespace ESMetadata.Models
 
         ESMetadataSettings Settings;
 
-        public ESGameOptions( ESMetadataSettings settings, ESGame game = default)
+        private void AddCustomOrders(MetadataField field)
+        {
+            PropertyInfo p = typeof(ESMetadataSettings).GetProperty($"{field}Source");
+            if (p is null) return;
+
+            actualFieldMap.RemoveAll(f => f.Field == field);
+
+            ESMetadataSettings.SourceFieldSettings fieldSettings = p.GetValue(Settings) as ESMetadataSettings.SourceFieldSettings;
+            actualFieldMap.AddRange(fieldSettings.Sources
+                .Where(s => s.Enabled)
+                .Select(s => FieldMap
+                    .Where(f => f.Field == field && f.Source == s.ESField)
+                    .FirstOrDefault()
+                )
+            );
+        }
+        public ESGameOptions(ESMetadataSettings settings, ESGame game = default)
         {
             Settings = settings;
 
@@ -127,23 +144,33 @@ namespace ESMetadata.Models
                 MetadataField.BackgroundImage
             };
 
-            actualFieldMap = new GameFields(FieldMap.Where(f =>
-                (f.Field != MetadataField.Tags || Settings.ImportFavorite)
-                && !customizableOrders.Contains(f.Field)).ToList());
+            actualFieldMap = new GameFields(FieldMap
+                .Where(f => f.Field != MetadataField.Tags || Settings.ImportFavorite)
+                .ToList()
+            );
 
-            // TODO: customizable orders instead of this stub
-            actualFieldMap.AddRange(FieldMap.Where(f => customizableOrders.Contains(f.Field)).ToList());
+            foreach( MetadataField f in customizableOrders)
+            {
+                AddCustomOrders(f);
+            };
 
             data = new GameFields();
             if (game != default)
+            {
                 AddGame(game);
+            }
         }
 
         public void AddGame(ESGame game)
         {
+            if (game is null)
+            {
+                return;
+            }
+
             foreach (GameField f in actualFieldMap)
             {
-                if (f.Source == ESGameField.Name && string.IsNullOrEmpty(game.Desc))
+                if (f.Source == ESGameField.Name && string.IsNullOrEmpty(game.Desc) && Settings.BestMatchWithDesc)
                 {
                     continue;
                 }

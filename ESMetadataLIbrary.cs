@@ -31,13 +31,18 @@ namespace ESMetadata
 
 
 
-        private List<ESGame> ESGames = new List<ESGame>();
+        static private List<ESGame> ESGames = new List<ESGame>();
+        static private int loadedESGamesHash = 0;
+        static private DateTime loadedESGamesLastUsed = default;
+
+
         private readonly IPlayniteAPI PlayniteApi;
         private readonly ESMetadataSettings Settings;
 
         private ESGameOptions gameData;
 
         public ESGameOptions GameData { get => gameData; }
+
 
         public void Dispose()
         {}
@@ -49,8 +54,13 @@ namespace ESMetadata
             LoadLibrary(game);
             gameData = new ESGameOptions(plugin.GetSettings());
 
-            gameData.AddGame(FindGame(game));
+            List<ESGame> similarGames = FindGames(game);
 
+            gameData.AddGame(similarGames.FirstOrDefault());
+            if(Settings.BestMatchWithDesc && string.IsNullOrEmpty(gameData.GetField(MetadataField.Description)))
+            {
+                 gameData.AddGame(similarGames.FirstOrDefault(g => !string.IsNullOrEmpty(g.Desc)));
+            }
         }
 
         public List<ESGame> Games { get => ESGames; }
@@ -65,23 +75,42 @@ namespace ESMetadata
             return game.Roms.Select(rom => PlayniteApi.ExpandGameVariables(game, rom.Path, emulatorPath).Replace("\\\\", "\\")).ToList();
         }
 
+        private static int GetHashCodeOfList<T>(IEnumerable<T> list)
+        {
+            List<int> codes = new List<int>();
+            foreach (T item in list)
+            {
+                codes.Add(item.GetHashCode());
+            }
+            codes.Sort();
+            int hash = 0;
+            foreach (int code in codes)
+            {
+                unchecked
+                {
+                    hash *= 251; // multiply by a prime number
+                    hash += code; // add next hash code
+                }
+            }
+            return hash;
+        }
+
         private void LoadLibrary(Game game)
         {
             // find gamelist.xml
             // take rom path and find closest
             // game not in list => search gamelists in "library"
 
-            List<string> romsPath = GetRomsPath(game);
+            List<string> romsPath = GetRomsPath(game)?.Select(p=>Path.GetDirectoryName(p))?.ToList();
 
             if (romsPath is null)
                 return;
 
             List<string> gameLists = new List<string>();
 
-
             foreach (string romPath in romsPath)
             {
-                string gamelistFile = Path.Combine(Path.GetDirectoryName(romPath), "gamelist.xml");
+                string gamelistFile = Path.Combine(romPath, "gamelist.xml");
 
                 while (!File.Exists(gamelistFile) && !string.IsNullOrEmpty(gamelistFile))
                 {
@@ -101,6 +130,19 @@ namespace ESMetadata
                 }
             }
 
+
+
+            int hash = GetHashCodeOfList(gameLists);
+
+            if ( hash == loadedESGamesHash && (DateTime.Now - loadedESGamesLastUsed) < TimeSpan.FromSeconds(3))
+            {
+                loadedESGamesLastUsed = DateTime.Now;
+                return;
+            }
+
+            loadedESGamesLastUsed = DateTime.Now;
+            loadedESGamesHash = hash;
+
             ESGames = new List<ESGame>();
             foreach(string file in gameLists)
             {
@@ -114,50 +156,46 @@ namespace ESMetadata
                 }
             }
         }
-        private ESGame FindGame(Game game)
+
+        private List<ESGame> FindGames(Game game)
         {
-            string romName = Path.GetFileName(GetRomsPath(game).FirstOrDefault() ?? string.Empty);
 
-            List<Tuple<ESGame, double>> similarity = new List<Tuple<ESGame, double>>();
+            string romPath = GetRomsPath(game)?.FirstOrDefault() ?? default;
 
-            var mostSimilar =
-                ESGames.Select(s => new Tuple<ESGame, double>(s, Compare(s, game, romName)))
-                .Where(t => t.Item2 > 0.75)
-                .OrderByDescending(d => d.Item2)
-                .Select(d => d.Item1)
-                .ToList();
+            if (romPath == default) return new List<ESGame>();
 
+            List<ESGame> byPath = ESGames.Where(es => Tools.Equal(es.Path, romPath)).ToList();
 
-            if (mostSimilar.Count == 0)
-                return new ESGame();
-
-            if (mostSimilar.Count == 1 || !Settings.BestMatchWithDesc)
-                return mostSimilar.First();
-
-
-            ESGame esGame = new ESGame().Extend(mostSimilar.First());
-
-            ESGame withDesc = mostSimilar.FirstOrDefault(g => !string.IsNullOrEmpty(g.Desc));
-
-            if (withDesc == null)
-            {
-                esGame.Name = null;
-            }
-            else if (0!=string.Compare(withDesc.Path, esGame.Path, StringComparison.OrdinalIgnoreCase))
-            {
-                esGame.Name = withDesc.Name;
-                esGame.Extend(withDesc);
-            }
-
-            return esGame;
+            return (byPath.Count > 0 && (!Settings.BestMatchWithDesc || !string.IsNullOrEmpty(byPath.First().Desc)))
+                ? byPath
+                : ESGames.Select(s => new Tuple<ESGame, double>(s, Compare(s, game, romPath, 0.75)))
+                    .Where(t => t.Item2 > 0.75)
+                    .OrderByDescending(d => d.Item2)
+                    .Select(d => d.Item1)
+                    .ToList();
         }
 
-        private double Compare(ESGame esGame, Game game, string romName)
+        private double Compare(ESGame esGame, Game game, string romPath, double minSimilarity )
         {
+
             double max = 0;
-            max = Math.Max(max, Tools.Similarity(game.Name, esGame.Name));
-            max = Math.Max(max, Tools.Similarity(Path.GetFileNameWithoutExtension(romName), Path.GetFileNameWithoutExtension(esGame.Path)));
-            max = Math.Max(max, Tools.Similarity(game.Name, Path.GetFileNameWithoutExtension(esGame.Path)));
+            bool ignoreArticles = Settings.IgnoreArticles;
+
+            string gameName = Tools.DeConventGameName(game.Name.ToLower(), ignoreArticles);
+
+            string romPathName = Tools.DeConventGameName(Path.GetFileNameWithoutExtension(romPath), ignoreArticles);
+            string romName = game.Roms?.FirstOrDefault()?.Name;
+            romName = !string.IsNullOrEmpty(romName) ? Tools.DeConventGameName(romName, ignoreArticles) : romName;
+
+            string esGameName = Tools.DeConventGameName(esGame.Name.ToLower(), ignoreArticles);
+            string esGamePath = Tools.DeConventGameName(Path.GetFileNameWithoutExtension(esGame.Path), ignoreArticles);
+
+            max = Math.Max(max, Tools.Equal(romPath, esGame.Path) ? 1.1 : 0); //Force path match priority
+            max = Math.Max(max, Tools.Similarity(romName, esGameName, minSimilarity));
+            max = Math.Max(max, Tools.Similarity(gameName, esGameName, minSimilarity));
+            max = Math.Max(max, Tools.Similarity(romPathName, esGamePath, minSimilarity));
+            max = Math.Max(max, Tools.Similarity(gameName, esGamePath, minSimilarity));
+
             return max;
         }
     }

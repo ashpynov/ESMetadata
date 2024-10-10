@@ -77,51 +77,110 @@
 
 
     <StackPanel Margin="20,20,20,20">
-        <TextBlock Text="{DynamicResource LOC_ESMETADATA_ExtraMetadataIntegration}" />
-        <Separator />
-        <CheckBox
-            Content="{DynamicResource LOC_ESMETADATA_CopyExtraResources}"
-            IsChecked="{Binding Settings.CopyExtraMetadataOnLinks}"
-            Margin="10,5,5,5"
-        />
-        <CheckBox
-            Content="{DynamicResource LOC_ESMETADATA_OverwriteExisting}"
-            IsChecked="{Binding Settings.Overwrite}"
-            IsEnabled="{Binding Settings.CopyExtraMetadataOnLinks}"
-            Margin="10,5,5,5"
-        />
-        <TextBlock
-            Text="{DynamicResource LOC_ESMETADATA_ExtraMetadataIntegrationHint}"
-            MaxWidth = "200"
-            Margin="10,10,5,10"
-        />
-        <Separator />
-        <CheckBox
-            Content="{DynamicResource LOC_ESMETADATA_GetFavorites}"
-            IsChecked="{Binding Settings.ImportFavorite}"
-            Margin="0,5,5,5"
-        />
+        <StackPanel.Resources>
+            <Style TargetType="ToolTip" BasedOn="{StaticResource {x:Type ToolTip}}">
+                <Style.Resources>
+                    <Style TargetType="ContentPresenter">
+                        <Style.Resources>
+                            <Style TargetType="TextBlock" BasedOn="{StaticResource {x:Type TextBlock}}">
+                                <Setter Property="TextWrapping" Value="Wrap" />
+                            </Style>
+                        </Style.Resources>
+                    </Style>
+                </Style.Resources>
+                <Setter Property="MaxWidth" Value="500" />
+            </Style>
+        </StackPanel.Resources>
+        <StackPanel Orientation="Horizontal" Margin="0,5,5,5">
+            <CheckBox
+                Content="{DynamicResource LOC_ESMETADATA_GetFavorites}"
+                IsChecked="{Binding Settings.ImportFavorite}"
+                ToolTip="{DynamicResource LOC_ESMETADATA_FavouritesHint}"/>
+            <TextBlock
+                Text="&#xEFCA;" FontFamily="IcoFont" Margin="10,0,0,0"
+                ToolTip="{DynamicResource LOC_ESMETADATA_ExtraMetadataIntegrationHint}"/>
+        </StackPanel>
         <CheckBox
             Content="{DynamicResource LOC_ESMETADATA_AutomaticlySelectImage}"
             IsChecked="{Binding Settings.SelectAutomaticly}"
             Margin="0,5,5,5"
         />
         <StackPanel Orientation="Vertical" Margin="30,0,0,5" IsEnabled="{Binding Settings.SelectAutomaticly}">
-            <StackPanel Orientation="Horizontal" Margin="0,5,5,5" IsEnabled="{Binding Settings.SelectAutomaticly}">
-                <TextBlock Text="Icon:" MinWidth="180"  IsEnabled="{Binding Settings.SelectAutomaticly}"/>
+            <StackPanel Orientation="Horizontal" Margin="0,5,5,5">
+                <TextBlock Text="{DynamicResource LOC_ESMETADATA_ForIcon}" MinWidth="180"/>
                 <ContentControl DataContext="{Binding Settings.IconSource}" IsTabStop="False"
                                 MinWidth="300" Template="{StaticResource SourceSelector}" />
             </StackPanel>
             <StackPanel Orientation="Horizontal" Margin="0,5,5,5">
-                <TextBlock Text="Cover image:" MinWidth="180"/>
+                <TextBlock Text="{DynamicResource LOC_ESMETADATA_ForCoverImage}" MinWidth="180"/>
                 <ContentControl DataContext="{Binding Settings.CoverImageSource}" IsTabStop="False"
                                 MinWidth="300"    Template="{StaticResource SourceSelector}" />
             </StackPanel>
             <StackPanel Orientation="Horizontal" Margin="0,5,5,5">
-                <TextBlock Text="Background image:" MinWidth="180"/>
+                <TextBlock Text="{DynamicResource LOC_ESMETADATA_ForBackgroundImage}" MinWidth="180"/>
                 <ContentControl DataContext="{Binding Settings.BackgroundImageSource}" IsTabStop="False"
                                 MinWidth="300" Template="{StaticResource SourceSelector}" />
             </StackPanel>
         </StackPanel>
+        <CheckBox
+            Content="{DynamicResource LOC_ESMETADATA_DownscaleImage}"
+            IsChecked="{Binding Settings.DownscaleImage}"
+            Margin="0,5,5,5"
+        />
+        <StackPanel Orientation="Vertical" Margin="30,0,0,5" IsEnabled="{Binding Settings.DownscaleImage}">
+            <StackPanel Orientation="Horizontal" Margin="0,5,5,5">
+                <TextBlock Text="{DynamicResource LOC_ESMETADATA_ForIcon}" MinWidth="180" VerticalAlignment="Center"/>
+                <TextBox Text="{Binding Settings.IconMaxWidth}" Width="50"/>
+                <TextBlock Text="{DynamicResource LOC_ESMETADATA_DownscaleImageWidth}" Margin="5,0,5,0" VerticalAlignment="Center"/>
+                <TextBox Text="{Binding Settings.IconMaxHeight}" Width="50"/>
+                <TextBlock Text="{DynamicResource LOC_ESMETADATA_DownscaleImageHeight}" Margin="5,0,5,0" VerticalAlignment="Center"/>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" Margin="0,5,5,5">
+                <TextBlock Text="{DynamicResource LOC_ESMETADATA_ForCoverImage}" MinWidth="180" VerticalAlignment="Center"/>
+                <TextBox Text="{Binding Settings.CoverImageMaxWidth}" Width="50"/>
+                <TextBlock Text="{DynamicResource LOC_ESMETADATA_DownscaleImageWidth}" Margin="5,0,5,0" VerticalAlignment="Center"/>
+                <TextBox Text="{Binding Settings.CoverImageMaxHeight}" Width="50"/>
+                <TextBlock Text="{DynamicResource LOC_ESMETADATA_DownscaleImageHeight}" Margin="5,0,5,0" VerticalAlignment="Center"/>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" Margin="0,5,5,5">
+                <TextBlock Text="{DynamicResource LOC_ESMETADATA_ForBackgroundImage}" MinWidth="180" VerticalAlignment="Center"/>
+                <TextBox Text="{Binding Settings.BackgroundImageMaxWidth}" Width="50"/>
+                <TextBlock Text="{DynamicResource LOC_ESMETADATA_DownscaleImageWidth}" Margin="5,0,5,0" VerticalAlignment="Center"/>
+                <TextBox Text="{Binding Settings.BackgroundImageMaxHeight}" Width="50"/>
+                <TextBlock Text="{DynamicResource LOC_ESMETADATA_DownscaleImageHeight}" Margin="5,0,5,0" VerticalAlignment="Center"/>
+            </StackPanel>
+        </StackPanel>
+        <StackPanel Orientation="Horizontal" Margin="0,5,5,5">
+            <CheckBox
+                Content="{DynamicResource LOC_ESMETADATA_BestMatchWithDesc}"
+                IsChecked="{Binding Settings.BestMatchWithDesc}"
+                ToolTip="{DynamicResource LOC_ESMETADATA_BestMatchWithDescHint}"
+            />
+            <TextBlock Text="&#xEFCA;" FontFamily="IcoFont" Margin="10,0,0,0"
+                ToolTip="{DynamicResource LOC_ESMETADATA_BestMatchWithDescHint}"
+            />
+        </StackPanel>
+        <CheckBox
+            Content="{DynamicResource LOC_ESMETADATA_IgnoreArticles}"
+            IsChecked="{Binding Settings.Overwrite}"
+            IsEnabled="{Binding Settings.IgnoreArticles}"
+            Margin="0,5,5,5"
+        />
+        <StackPanel Orientation="Horizontal" Margin="0,5,5,5">
+            <CheckBox
+                Content="{DynamicResource LOC_ESMETADATA_CopyExtraResources}"
+                IsChecked="{Binding Settings.CopyExtraMetadataOnLinks}"
+                ToolTip="{DynamicResource LOC_ESMETADATA_ExtraMetadataIntegrationHint}"
+            />
+            <TextBlock Text="&#xEFCA;" FontFamily="IcoFont" Margin="10,0,0,0"
+                ToolTip="{DynamicResource LOC_ESMETADATA_ExtraMetadataIntegrationHint}"
+            />
+        </StackPanel>
+        <CheckBox
+            Content="{DynamicResource LOC_ESMETADATA_OverwriteExisting}"
+            IsChecked="{Binding Settings.Overwrite}"
+            IsEnabled="{Binding Settings.CopyExtraMetadataOnLinks}"
+            Margin="0,5,5,5"
+        />
     </StackPanel>
 </UserControl>

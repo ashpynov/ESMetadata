@@ -6,9 +6,13 @@
     <sys:String x:Key="LOC_ESMETADATA_CopyExtraResources">Copy video and logo To ExtraMetadata game folder when Links are provided by EmulationStation</sys:String>
     <sys:String x:Key="LOC_ESMETADATA_OverwriteExisting">Overwrite existing files</sys:String>
     <sys:String x:Key="LOC_ESMETADATA_GetFavorites">Import 'Favorite' mark when 'Tags' is providing by EmulationStation</sys:String>
-
+    <sys:String x:Key="LOC_ESMETADATA_AutomaticlySelectImage">Automaticly select image during bulk loading with next priority:</sys:String>
     <sys:String x:Key="LOC_ESMETADATA_ExtraMetadataIntegrationHint">* Such resources as VideoTrailer or Game Logo are provided by ExtraMetadata extension and does not suport by Metadata Source API.
 
     EmulationStation Metadata Source may copy this resources to extension folder automatically during bulk Metadata importing if 'Links' import is enabled for this source.</sys:String>
+
+    <sys:String x:Key="LOC_ESMETADATA_SelectIcon">Select icon</sys:String>
+    <sys:String x:Key="LOC_ESMETADATA_SelectCoverImage">Select cover</sys:String>
+    <sys:String x:Key="LOC_ESMETADATA_SelectBackgroundImage">Select background</sys:String>
 
 </ResourceDictionary>

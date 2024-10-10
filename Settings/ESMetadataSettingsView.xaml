@@ -5,6 +5,75 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              mc:Ignorable="d"
              d:DesignHeight="400" d:DesignWidth="600">
+    <UserControl.Resources>
+        <ControlTemplate TargetType="ContentControl" x:Key="SourceSelector">
+            <ToggleButton Name="Toggle" HorizontalContentAlignment="Stretch"
+                            Focusable="False" Padding="0"
+                            Foreground="{DynamicResource TextBrush}">
+                <ToggleButton.Content>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition />
+                        </Grid.RowDefinitions>
+                        <TextBlock Text="{Binding SelectionText}" TextTrimming="CharacterEllipsis"
+                                    Grid.Column="0" VerticalAlignment="Center" Margin="4,2,0,2"/>
+                        <Viewbox Grid.Column="1" Width="20">
+                            <TextBlock Text="6" FontFamily="Marlett" Foreground="{DynamicResource GlyphBrush}"
+                                        VerticalAlignment="Center"/>
+                        </Viewbox>
+                        <Popup Placement="Bottom" Focusable="False" AllowsTransparency="True" Name="Popup"
+                                IsOpen="{Binding IsChecked, ElementName=Toggle, Mode=TwoWay, Delay=100}" StaysOpen="False"
+                                Width="{TemplateBinding ActualWidth}"
+                                MaxHeight="300">
+                            <Border Background="{DynamicResource PopupBackgroundBrush}"
+                                    BorderThickness="{DynamicResource PopupBorderThickness}"
+                                    BorderBrush="{DynamicResource PopupBorderBrush}">
+                                <ItemsControl ItemsSource="{Binding Sources}"
+                                                ScrollViewer.CanContentScroll="True"
+                                                KeyboardNavigation.DirectionalNavigation="Contained"
+                                                VirtualizingPanel.IsVirtualizing="True"
+                                                VirtualizingPanel.VirtualizationMode="Recycling">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <DockPanel Margin="0,2,0,2" Height="26">
+                                                <Button Content="6" FontFamily="Marlett" Margin="2,0,2,0"
+                                                        DockPanel.Dock="Right" Padding="2" VerticalAlignment="Center"
+                                                        Command="{Binding DataContext.MoveSourceDownCommand, RelativeSource={RelativeSource AncestorType=ToggleButton}}"
+                                                        CommandParameter="{Binding}" />
+                                                <Button Content="5" FontFamily="Marlett"
+                                                        DockPanel.Dock="Right" Padding="2" VerticalAlignment="Center"
+                                                        Command="{Binding DataContext.MoveSourceUpCommand, RelativeSource={RelativeSource AncestorType=ToggleButton}}"
+                                                        CommandParameter="{Binding}" />
+                                                <CheckBox IsChecked="{Binding Enabled}" DockPanel.Dock="Left"
+                                                            Content="{Binding ESField}"
+                                                            Margin="3,2,3,2" VerticalAlignment="Center" HorizontalAlignment="Stretch"/>
+                                            </DockPanel>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                    <ItemsControl.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <VirtualizingStackPanel />
+                                        </ItemsPanelTemplate>
+                                    </ItemsControl.ItemsPanel>
+                                    <ItemsControl.Template>
+                                        <ControlTemplate>
+                                            <ScrollViewer Focusable="False" VerticalScrollBarVisibility="Auto">
+                                                <ItemsPresenter />
+                                            </ScrollViewer>
+                                        </ControlTemplate>
+                                    </ItemsControl.Template>
+                                </ItemsControl>
+                            </Border>
+                        </Popup>
+                    </Grid>
+                </ToggleButton.Content>
+            </ToggleButton>
+        </ControlTemplate>
+    </UserControl.Resources>
 
 
     <StackPanel Margin="20,20,20,20">
@@ -32,6 +101,27 @@
             IsChecked="{Binding Settings.ImportFavorite}"
             Margin="0,5,5,5"
         />
-
+        <CheckBox
+            Content="{DynamicResource LOC_ESMETADATA_AutomaticlySelectImage}"
+            IsChecked="{Binding Settings.SelectAutomaticly}"
+            Margin="0,5,5,5"
+        />
+        <StackPanel Orientation="Vertical" Margin="30,0,0,5" IsEnabled="{Binding Settings.SelectAutomaticly}">
+            <StackPanel Orientation="Horizontal" Margin="0,5,5,5" IsEnabled="{Binding Settings.SelectAutomaticly}">
+                <TextBlock Text="Icon:" MinWidth="180"  IsEnabled="{Binding Settings.SelectAutomaticly}"/>
+                <ContentControl DataContext="{Binding Settings.IconSource}" IsTabStop="False"
+                                MinWidth="300" Template="{StaticResource SourceSelector}" />
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" Margin="0,5,5,5">
+                <TextBlock Text="Cover image:" MinWidth="180"/>
+                <ContentControl DataContext="{Binding Settings.CoverImageSource}" IsTabStop="False"
+                                MinWidth="300"    Template="{StaticResource SourceSelector}" />
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" Margin="0,5,5,5">
+                <TextBlock Text="Background image:" MinWidth="180"/>
+                <ContentControl DataContext="{Binding Settings.BackgroundImageSource}" IsTabStop="False"
+                                MinWidth="300" Template="{StaticResource SourceSelector}" />
+            </StackPanel>
+        </StackPanel>
     </StackPanel>
 </UserControl>

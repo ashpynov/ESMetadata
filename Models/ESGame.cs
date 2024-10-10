@@ -1,6 +1,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.Xml;
 using System.Xml.Linq;
@@ -23,11 +24,29 @@ namespace ESMetadata.Models
 
         public ESGame() { }
 
-        public ESGame(XElement node, string root=default)
+        public ESGame(XElement node, string root = default)
         {
             this.root = root;
             ReadXml(node);
         }
+        public ESGame Clone(ESGame from)
+        {
+            foreach(PropertyInfo prop in typeof(ESGame).GetProperties())
+            {
+                prop.SetValue(this, prop.GetValue(from));
+            }
+            return this;
+        }
+
+        public ESGame Extend(ESGame from)
+        {
+            foreach(PropertyInfo prop in typeof(ESGame).GetProperties().Where(p=>string.IsNullOrEmpty(p.GetValue(this) as string)))
+            {
+                prop.SetValue(this, prop.GetValue(from));
+            }
+            return this;
+        }
+
 
         [Path]
         public string Path { get; set; }

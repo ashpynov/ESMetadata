@@ -49,7 +49,7 @@
                                                         Command="{Binding DataContext.MoveSourceUpCommand, RelativeSource={RelativeSource AncestorType=ToggleButton}}"
                                                         CommandParameter="{Binding}" />
                                                 <CheckBox IsChecked="{Binding Enabled}" DockPanel.Dock="Left"
-                                                            Content="{Binding ESField}"
+                                                            Content="{Binding Name}"
                                                             Margin="3,2,3,2" VerticalAlignment="Center" HorizontalAlignment="Stretch"/>
                                             </DockPanel>
                                         </DataTemplate>
@@ -160,6 +160,17 @@
                 ToolTip="{DynamicResource LOC_ESMETADATA_BestMatchWithDescHint}"
             />
         </StackPanel>
+        <StackPanel Orientation="Horizontal" Margin="0,5,5,5">
+            <CheckBox
+                Content="{DynamicResource LOC_ESMETADATA_NonStrictMediaSuggest}"
+                IsChecked="{Binding Settings.NonStrictMediaSuggest}"
+                ToolTip="{DynamicResource LOC_ESMETADATA_NonStrictMediaSuggestHint}"
+            />
+            <TextBlock Text="&#xEFCA;" FontFamily="IcoFont" Margin="10,0,0,0"
+                ToolTip="{DynamicResource LOC_ESMETADATA_NonStrictMediaSuggestHint}"
+            />
+        </StackPanel>
+
         <CheckBox
             Content="{DynamicResource LOC_ESMETADATA_IgnoreArticles}"
             IsChecked="{Binding Settings.Overwrite}"
@@ -169,13 +180,26 @@
         <StackPanel Orientation="Horizontal" Margin="0,5,5,5">
             <CheckBox
                 Content="{DynamicResource LOC_ESMETADATA_CopyExtraResources}"
-                IsChecked="{Binding Settings.CopyExtraMetadataOnLinks}"
+                IsChecked="{Binding Settings.CopyExtraMetadataTriple}"
+                IsThreeState="True"
                 ToolTip="{DynamicResource LOC_ESMETADATA_ExtraMetadataIntegrationHint}"
             />
             <TextBlock Text="&#xEFCA;" FontFamily="IcoFont" Margin="10,0,0,0"
                 ToolTip="{DynamicResource LOC_ESMETADATA_ExtraMetadataIntegrationHint}"
             />
         </StackPanel>
+        <ItemsControl ItemsSource="{Binding Settings.ExtraMetadataOptions}" >
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <CheckBox
+                        Content="{Binding TranslateName}"
+                        IsChecked="{Binding IsChecked}"
+                        Command="{Binding DataContext.Settings.CheckBoxChanged, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                        Margin="30,5,5,5"
+                    />
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
         <CheckBox
             Content="{DynamicResource LOC_ESMETADATA_OverwriteExisting}"
             IsChecked="{Binding Settings.Overwrite}"

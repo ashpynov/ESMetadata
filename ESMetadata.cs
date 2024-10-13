@@ -1,17 +1,12 @@
-﻿using Playnite.SDK;
-using Playnite.SDK.Plugins;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Controls;
+using System.ComponentModel;
 using ESMetadata.Settings;
-using Playnite.SDK.Events;
-using Playnite.SDK.Models;
-using System.Collections.ObjectModel;
-using System.IO;
-using ESMetadata.Models;
+using ESMetadata.Models.ESGame;
+using Playnite.SDK;
+using Playnite.SDK.Plugins;
+
 
 namespace ESMetadata
 {
@@ -19,22 +14,45 @@ namespace ESMetadata
     {
         private static readonly ILogger logger = LogManager.GetLogger();
 
-        private ESMetadataSettingsViewModel Settings { get; set; }
+        private ESMetadataSettingsViewModel SettingsModel { get; set; }
 
         public override Guid Id { get; } = Guid.Parse("71f952a8-4763-41e3-9934-7fe02a1e33d4");
 
-        public override List<MetadataField> SupportedFields { get; } = ESGameOptions.GetSuportedFields();
+        public override List<MetadataField> SupportedFields { get; } = ESGame.GetSuportedFields;
 
         public override string Name => "EmulationStation";
 
+        private bool itemUpdatedRegistered = false;
+
+        public static new IPlayniteAPI PlayniteApi;
         public ESMetadata(IPlayniteAPI api) : base(api)
         {
-            Settings = new ESMetadataSettingsViewModel(this);
+            PlayniteApi = api;
+            SettingsModel = new ESMetadataSettingsViewModel(this);
             Properties = new MetadataPluginProperties
             {
                 HasSettings = true
             };
-            //api.Database.Games.ItemUpdated += Games_ItemUpdated;
+            SettingsChangedEventHandler(null,null);
+
+            SettingsModel.PropertyChanged += SettingsChangedEventHandler;
+
+        }
+
+        public void SettingsChangedEventHandler(object sender, PropertyChangedEventArgs e)
+        {
+            if (itemUpdatedRegistered != SettingsModel.Settings.CopyExtraMetadata)
+            {
+                if (SettingsModel.Settings.CopyExtraMetadata)
+                {
+                    PlayniteApi.Database.Games.ItemUpdated += ESMetadataProvider.Games_ItemUpdated;
+                }
+                else
+                {
+                    PlayniteApi.Database.Games.ItemUpdated -= ESMetadataProvider.Games_ItemUpdated;
+                }
+                itemUpdatedRegistered = SettingsModel.Settings.CopyExtraMetadata;
+            }
         }
 
         public override OnDemandMetadataProvider GetMetadataProvider(MetadataRequestOptions options)
@@ -44,7 +62,7 @@ namespace ESMetadata
 
         public override ISettings GetSettings(bool firstRunSettings)
         {
-            return Settings;
+            return SettingsModel;
         }
 
         public override UserControl GetSettingsView(bool firstRunSettings)
@@ -54,7 +72,7 @@ namespace ESMetadata
 
         public ESMetadataSettings GetSettings()
         {
-            return Settings.Settings;
+            return SettingsModel.Settings;
         }
     }
 }

@@ -1,12 +1,11 @@
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Xml;
 using System.Xml.Linq;
 using System.Xml.Schema;
-using System.Xml.Serialization;
+using ESMetadata.Extensions;
 
 
 [AttributeUsage(AttributeTargets.Property, Inherited = false, AllowMultiple = false)]
@@ -15,32 +14,31 @@ sealed class PathAttribute : Attribute
     public PathAttribute() { }
 }
 
-
-namespace ESMetadata.Models
+namespace ESMetadata.Models.Gamelist
 {
-    public class ESGame
+    public class GamelistGame
     {
         private readonly string root;
 
-        public ESGame() { }
+        public GamelistGame() { }
 
-        public ESGame(XElement node, string root = default)
+        public GamelistGame(XElement node, string root = default)
         {
             this.root = root;
             ReadXml(node);
         }
-        public ESGame Clone(ESGame from)
+        public GamelistGame Clone(GamelistGame from)
         {
-            foreach(PropertyInfo prop in typeof(ESGame).GetProperties())
+            foreach(PropertyInfo prop in typeof(GamelistGame).GetProperties())
             {
                 prop.SetValue(this, prop.GetValue(from));
             }
             return this;
         }
 
-        public ESGame Extend(ESGame from)
+        public GamelistGame Extend(GamelistGame from)
         {
-            foreach(PropertyInfo prop in typeof(ESGame).GetProperties().Where(p=>string.IsNullOrEmpty(p.GetValue(this) as string)))
+            foreach(PropertyInfo prop in typeof(GamelistGame).GetProperties().Where(p=>(p.GetValue(this) as string).IsNullOrEmpty()))
             {
                 prop.SetValue(this, prop.GetValue(from));
             }
@@ -77,7 +75,7 @@ namespace ESMetadata.Models
 
         public void ReadXml(XElement node)
         {
-            foreach (PropertyInfo prop in typeof(ESGame).GetProperties())
+            foreach (PropertyInfo prop in typeof(GamelistGame).GetProperties())
             {
                 var element = node.Element(prop.Name.ToLower());
                 if (element != null)
@@ -97,15 +95,15 @@ namespace ESMetadata.Models
 
         private string AbsPath(string path)
         {
-            if (string.IsNullOrEmpty(path)) return default;
-            if (string.IsNullOrEmpty(root)) return path;
+            if (path.IsNullOrEmpty()) return default;
+            if (root.IsNullOrEmpty()) return path;
 
             return System.IO.Path.Combine(root, path).Replace('/','\\').Replace("\\.\\","\\");
         }
 
         public string Get(string property)
         {
-            return typeof(ESGame).GetProperty(property)?.GetValue(this) as string;
+            return typeof(GamelistGame).GetProperty(property)?.GetValue(this) as string;
         }
     }
 }

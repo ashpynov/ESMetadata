@@ -5,26 +5,15 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml.Linq;
-using System.Dynamic;
-using System.Xml.Serialization;
-using ESMetadata.Models;
-using System.Xml;
-using System.Globalization;
-using System.Windows;
-using ESMetadata.Settings;
-using ESMetadata.Common;
-using System.Runtime.InteropServices;
 using System.Drawing;
 using System.Drawing.Imaging;
-using System.Reflection;
-using System.Text.RegularExpressions;
 using System.Collections.ObjectModel;
-using System.Windows.Documents;
-using System.Security.Cryptography;
-using System.Runtime.Remoting.Messaging;
+using System.Globalization;
+using ESMetadata.Models;
+using ESMetadata.Settings;
+using ESMetadata.ViewModels;
+using ESMetadata.Models.ESGame;
+using ESMetadata.Extensions;
 
 namespace ESMetadata
 {
@@ -33,44 +22,26 @@ namespace ESMetadata
         private readonly MetadataRequestOptions Options;
         private readonly IPlayniteAPI PlayniteApi;
         private readonly ESMetadataSettings Settings;
-        private ESMetadataLibrary esLibrary;
+        private readonly ESMetadataLibrary esLibrary;
 
-        private bool LinksRequested = false;
         private bool TagsRequested = false;
 
-        private List<MetadataField> availableFields = default;
         public override List<MetadataField> AvailableFields
         {
-             get
-             {
-                if (availableFields == default)
-                {
-                    availableFields = GetAvailableFields();
-                }
-                return availableFields;
-            }
-        }
-
-        private List<MetadataField> GetAvailableFields()
-        {
-            LinksRequested = false;
-            return esLibrary.GameData.GetAvailableFields();
+            get => esLibrary.Game.GetAvailableFields();
         }
 
         public ESMetadataProvider(MetadataRequestOptions options, ESMetadata plugin)
         {
             Options = options;
-            PlayniteApi = plugin.PlayniteApi;
+            PlayniteApi = ESMetadata.PlayniteApi;
             Settings = plugin.GetSettings();
-            esLibrary = new ESMetadataLibrary(plugin, options.GameData);
-
-            List<MetadataField> availableFields = esLibrary.GameData.GetAvailableFields();
-            List<MetadataField> a = availableFields;
+            esLibrary = new ESMetadataLibrary(plugin, options.GameData, options.IsBackgroundDownload);
         }
 
         private IEnumerable<MetadataProperty> ToMetadataProperty(string property, char spliter = default)
         {
-            return !string.IsNullOrEmpty(property)
+            return !property.IsNullOrEmpty()
                 ? property.Split(spliter)
                           .Where(s => s.Trim().Length > 0 )
                           .Select(s => new MetadataNameProperty(s.Trim()))
@@ -80,7 +51,7 @@ namespace ESMetadata
 
         private int? ToMetadataScore(string rating)
         {
-            return !string.IsNullOrEmpty(rating) && float.TryParse(rating, NumberStyles.Float, CultureInfo.InvariantCulture, out float score)
+            return !rating.IsNullOrEmpty() && float.TryParse(rating, NumberStyles.Float, CultureInfo.InvariantCulture, out float score)
             ? (int)(score * 100) : default;
         }
 
@@ -116,11 +87,19 @@ namespace ESMetadata
 
         private MetadataFile ToMetadataFile(string path, int maxWidth = int.MaxValue, int maxHeight = int.MaxValue)
         {
-            return !string.IsNullOrEmpty(path) && File.Exists(path) ? ScaledImage(path, maxWidth, maxHeight) : default;
+            return !path.IsNullOrEmpty() && File.Exists(path) ? ScaledImage(path, maxWidth, maxHeight) : default;
         }
 
-        private string ChooseImageFile(List<string> paths, string caption = null, int maxWidth = 240, int maxHeight = 180)
+        private string ChooseImageFile(List<string> paths, string caption = null, int maxWidth = 240, int maxHeight = 180, string original = null)
         {
+            if (paths.IsNullOrSingle() || (Options.IsBackgroundDownload && Settings.SelectAutomaticly))
+                return paths.FirstOrDefault();
+
+            List<string> distinct = DistinctResources(paths, original);
+
+            if (distinct.IsNullOrSingle())
+                return distinct.FirstOrDefault();
+
             double itemWidth = 240;
             double itemHeight = 180;
 
@@ -131,57 +110,74 @@ namespace ESMetadata
                 itemHeight = maxHeight * zoom;
 
             }
-            return PlayniteApi.Dialogs.ChooseImageFile(
-                paths.Select(p => new ImageFileOption(p)).ToList(),
+            string result = PlayniteApi.Dialogs.ChooseImageFile(
+                distinct.Select(p => new ImageFileOption(p)).ToList(),
                 caption, itemWidth, itemHeight)?.Path;
 
+            return !original.IsNullOrEmpty() && result.Equal(original) ? null : result;
         }
 
-        private MetadataFile ToMetadataFile(string name, List<string>paths, int maxWidth = int.MaxValue, int maxHeight = int.MaxValue)
-        => ToMetadataFile(( paths?.Count > 1 && ( !Options.IsBackgroundDownload || !Settings.SelectAutomaticly ))
-                ? ChooseImageFile( paths, ResourceProvider.GetString($"LOC_ESMETADATA_Select{name}"), maxWidth, maxHeight )
-                : paths.FirstOrDefault(), maxWidth, maxHeight);
-
-        private void AddLink(string name, string path, List<Link> links)
+        private string ChooseVideoFile(List<string> paths, string caption = null, string original = null)
         {
-            if (!string.IsNullOrEmpty(path) && File.Exists(path))
-                links.Add(new Link(name, path));
+            if (paths.IsNullOrSingle() || (Options.IsBackgroundDownload && Settings.SelectAutomaticly))
+                return paths.FirstOrDefault();
+
+            List<string> distinct = DistinctResources(paths, original);
+
+            if (distinct.IsNullOrSingle())
+                return distinct.FirstOrDefault();
+
+            string result = VideoSelectionViewModel.ChooseVideoFile(
+                distinct.Select(p => new VideoFileOption(p)).ToList(),
+                caption, 320, 180)?.Path;
+
+            return !original.IsNullOrEmpty() && result.Equal(original) ? null : result;
+
         }
+
+        private MetadataFile ToMetadataFile(string name, List<string> paths, int maxWidth = int.MaxValue, int maxHeight = int.MaxValue)
+        => ToMetadataFile(
+                ChooseImageFile(
+                    paths,
+                    ResourceProvider.GetString($"LOC_ESMETADATA_Select{name}"),
+                    maxWidth, maxHeight),
+                maxWidth, maxHeight
+        );
 
         public override string GetName(GetMetadataFieldArgs args)
-        => esLibrary.GameData.GetField(MetadataField.Name);
+        => esLibrary.Game.GetField(MetadataField.Name);
 
         public override string GetDescription(GetMetadataFieldArgs args)
-        => esLibrary.GameData.GetField(MetadataField.Description);
+        => esLibrary.Game.GetField(MetadataField.Description);
 
         public override MetadataFile GetCoverImage(GetMetadataFieldArgs args)
         => ToMetadataFile(
             MetadataField.CoverImage.ToString(),
-            esLibrary.GameData.GetMultiField(MetadataField.CoverImage),
+            esLibrary.Game.GetMultiField(MetadataField.CoverImage),
             Settings.GetCoverImageMaxSize().Width, Settings.GetCoverImageMaxSize().Height);
 
         public override MetadataFile GetIcon(GetMetadataFieldArgs args)
         => ToMetadataFile(
             MetadataField.Icon.ToString(),
-            esLibrary.GameData.GetMultiField(MetadataField.Icon),
+            esLibrary.Game.GetMultiField(MetadataField.Icon),
             Settings.GetIconMaxSize().Width, Settings.GetIconMaxSize().Height);
 
         public override MetadataFile GetBackgroundImage(GetMetadataFieldArgs args)
         => ToMetadataFile(
             MetadataField.BackgroundImage.ToString(),
-            esLibrary.GameData.GetMultiField(MetadataField.BackgroundImage),
+            esLibrary.Game.GetMultiField(MetadataField.BackgroundImage),
             Settings.GetBackgroundImageMaxSize().Width, Settings.GetBackgroundImageMaxSize().Height);
 
         public override IEnumerable<MetadataProperty> GetGenres(GetMetadataFieldArgs args)
-        => ToMetadataProperty(esLibrary.GameData.GetField(MetadataField.Genres), '/');
+        => ToMetadataProperty(esLibrary.Game.GetField(MetadataField.Genres), '/');
 
         public override IEnumerable<MetadataProperty> GetRegions(GetMetadataFieldArgs args)
-        => ToMetadataProperty(esLibrary.GameData.GetField(MetadataField.Region), '/');
+        => ToMetadataProperty(esLibrary.Game.GetField(MetadataField.Region), '/');
 
         public override ReleaseDate? GetReleaseDate(GetMetadataFieldArgs args)
         {
-            string value = esLibrary.GameData.GetField(MetadataField.ReleaseDate);
-            if (!string.IsNullOrEmpty(value)
+            string value = esLibrary.Game.GetField(MetadataField.ReleaseDate);
+            if (!value.IsNullOrEmpty()
                 && DateTime.TryParseExact(value, "yyyyMMddTHHmmss", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime date)
             )
             {
@@ -191,33 +187,70 @@ namespace ESMetadata
         }
 
         public override int? GetCriticScore(GetMetadataFieldArgs args)
-        => ToMetadataScore(esLibrary.GameData.GetField(MetadataField.CriticScore));
+        => ToMetadataScore(esLibrary.Game.GetField(MetadataField.CriticScore));
 
         public override int? GetCommunityScore(GetMetadataFieldArgs args)
-        => ToMetadataScore(esLibrary.GameData.GetField(MetadataField.CommunityScore));
+        => ToMetadataScore(esLibrary.Game.GetField(MetadataField.CommunityScore));
 
         public override IEnumerable<MetadataProperty> GetDevelopers(GetMetadataFieldArgs args)
-        => ToMetadataProperty(esLibrary.GameData.GetField(MetadataField.Developers), '/');
+        => ToMetadataProperty(esLibrary.Game.GetField(MetadataField.Developers), '/');
 
         public override IEnumerable<MetadataProperty> GetPublishers(GetMetadataFieldArgs args)
-        => ToMetadataProperty(esLibrary.GameData.GetField(MetadataField.Publishers), '/');
+        => ToMetadataProperty(esLibrary.Game.GetField(MetadataField.Publishers), '/');
+
 
         public override IEnumerable<Link> GetLinks(GetMetadataFieldArgs args)
         {
-            List<Link> links = esLibrary.GameData.Data
-                .Where(
-                    f => f.Field == MetadataField.Links
-                    && f.LinkName != GameLinkField.None
-                    && !string.IsNullOrEmpty(f.Value)
-                    && File.Exists(f.Value))
-                .Select(f => new Link(f.LinkName.ToString(), f.Value))
-                .ToList();
 
-            LinksRequested = links.Count > 0;
+            IEnumerable<LinkField> types = Settings.CopyExtraMetadataFields;
 
-            Options.GameData.Links.ForEach(l => {if (!links.Select(li => li.Name).Contains(l.Name)) links.Add(l); });
+            List<Link> links= Options.GameData
+                ?.Links
+                ?.Where(l => !Enum.GetNames(typeof(LinkField)).Contains(l.Name))
+                ?.ToList()
+                ?? new List<Link>();
 
-            return links.Count> 0 ? links : default;
+            if (!Settings.CopyExtraMetadata)
+            {
+                return links.AllOrDefault();
+            }
+
+            foreach (LinkField type in types )
+            {
+                List<string> files = esLibrary.Game
+                                .GetMultiField(MetadataField.Links, type);
+
+                string original = getMediaFilePath(Options.GameData, type);
+                if (!Settings.Overwrite && Options.IsBackgroundDownload && File.Exists(original))
+                {
+                    continue;
+                }
+
+                if(!files.IsNullOrEmpty())
+                {
+                    string selected = null;
+                    switch (type)
+                    {
+                        case LinkField.VideoTrailer:
+                            selected = ChooseVideoFile(files, ResourceProvider.GetString($"LOC_ESMETADATA_Select{type}"), original: original);
+                            break;
+                        case LinkField.Bezel:
+                        case LinkField.Fanart:
+                        case LinkField.Logo:
+                            selected = ChooseImageFile(files, ResourceProvider.GetString($"LOC_ESMETADATA_Select{type}"), original: original);
+                            break;
+                        default:
+                            links.AddMissing(files.Select(p => new Link(type.ToString(), p)));
+                            break;
+                    }
+                    if (!selected.IsNullOrEmpty() && !selected.Equal(original))
+                    {
+                        links.AddMissing(files.Select(p => new Link(type.ToString(), selected)));
+                    }
+                }
+
+            }
+            return links.AllOrDefault();
         }
 
         public override IEnumerable<MetadataProperty> GetTags(GetMetadataFieldArgs args)
@@ -232,42 +265,24 @@ namespace ESMetadata
             return default;
         }
 
-        private void CopyExtraMetadata(Game game, string path, string type, bool overwrite)
+        static private void CopyExtraMetadata(Game game, string path, string type)
         {
 
-            if (string.IsNullOrEmpty(path) || !File.Exists(path))
+            if (path.IsNullOrEmpty() || !File.Exists(path))
             {
                 return;
             }
 
-            string destPath = getPath(game, path, type);
-
-            if (File.Exists(destPath) && !overwrite)
-            {
-                return;
-            }
+            string destPath = getMediaFilePath(game, path, type);
 
             Directory.CreateDirectory(Path.GetDirectoryName(destPath));
-            File.Copy(path, destPath, overwrite);
+            File.Copy(path, destPath, true);
         }
 
-        private void CopyExtraMetadata(Game game, Link link, bool overwrite) => CopyExtraMetadata(game, link.Url, link.Name, overwrite);
 
         public override void Dispose()
         {
             Game game = PlayniteApi.Database.Games.FirstOrDefault(g => g.Id == Options.GameData.Id);
-
-            if ( Options.IsBackgroundDownload
-              && LinksRequested
-              && Settings.CopyExtraMetadataOnLinks
-            )
-            {
-                foreach (var linkField in esLibrary.GameData.Data.Where(
-                    f => f.Field == MetadataField.Links && f.LinkName != GameLinkField.None && !string.IsNullOrEmpty(f.Value)))
-                {
-                    CopyExtraMetadata(Options.GameData, linkField.Value, linkField.LinkName.ToString(), Settings.Overwrite);
-                }
-            }
 
             if ( Options.IsBackgroundDownload
               && Settings.ImportFavorite
@@ -275,7 +290,7 @@ namespace ESMetadata
             {
 
                 if (game != default
-                    && Tools.Equal(esLibrary.GameData.GetField(MetadataField.Tags), "true")
+                    && esLibrary.Game.GetField(MetadataField.Tags).Equal("true")
                     && !game.Favorite)
                 {
                     game.Favorite = true;
@@ -284,47 +299,86 @@ namespace ESMetadata
             }
         }
 
-        private string getPath(Game game, string path, string type)
+        static private string getMediaFilePath(Game game, string path, string type)
         {
-            string fileName = string.Join(".", new List<string>() { type, Path.GetExtension(path) });
-            return Path.Combine(Path.Combine(PlayniteApi.Paths.ConfigurationPath, "ExtraMetadata", "Games", game.Id.ToString(), fileName));
+            return Path.Combine(getGameExtraMetadataPath(game), type + Path.GetExtension(path));
         }
 
-        private string getPath(Game game, Link link)
+        static private string getGameExtraMetadataPath(Game game)
         {
-            return getPath(game, link.Url, link.Name);
+            return Path.Combine(ESMetadata.PlayniteApi.Paths.ConfigurationPath, "ExtraMetadata", "Games", game.Id.ToString());
         }
 
-        private bool IsChanged(Game game, Link link)
+        static private string getMediaFilePath(Game game, LinkField type)
         {
-            return Tools.FastFileCompare(link.Url, getPath(game, link));
-        }
-        public void Games_ItemUpdated(object sender, ItemUpdatedEventArgs<Game> args)
-        {
-            foreach (var updatedGame in args.UpdatedItems)
+            string path =  Path.Combine(getGameExtraMetadataPath(game), type.ToString());
+            switch (type)
             {
-                List<string> linkTags = new List<string> { "videoTrailer", "Logo", "Bezel", "Fanart" };
-                ObservableCollection<Link> newLinks = updatedGame.NewData.Links;
-                ObservableCollection<Link> oldLinks = updatedGame.OldData.Links ?? new ObservableCollection<Link>();
-                if (newLinks?.Count > 0)
+                case LinkField.VideoTrailer:
+                    return path + ".mp4";
+                case LinkField.Bezel:
+                case LinkField.Fanart:
+                case LinkField.Logo:
+                    return path + ".png";
+            }
+            return path;
+       }
+
+        static public void Games_ItemUpdated(object sender, ItemUpdatedEventArgs<Game> args)
+        {
+            IEnumerable<LinkField> LinkTypes = Enum.GetValues(typeof(LinkField)).Cast<LinkField>();
+
+            List<LinkField> linkTags = Enum
+                    .GetValues(typeof(LinkField))
+                    .Cast<LinkField>()
+                    .Where(a => a != LinkField.None && a != LinkField.VideoTrailer )
+                    .ToList();
+
+            foreach (ItemUpdateEvent<Game> update in args.UpdatedItems)
+            {
+                ObservableCollection<Link> newLinks = update.NewData.Links;
+                ObservableCollection<Link> oldLinks = update.OldData.Links ?? new ObservableCollection<Link>();
+                if (newLinks.IsNullOrEmpty())
                 {
-                    List<Link> updatedLinks = newLinks.Where(
-                        link => !string.IsNullOrEmpty(link.Url)
-                        && linkTags.Any(t => Tools.Equal(link.Name, t)
-                        && IsChanged(updatedGame.NewData, link))).ToList();
+                    continue;
+                }
 
-                    if (updatedLinks.Count == 0) continue;
+                foreach (LinkField linkType in LinkTypes)
+                {
+                    string oldLink = oldLinks.FirstOrDefault(l => l.Name.Equal(linkType.ToString()))?.Url;
+                    string newLink = newLinks.FirstOrDefault(l => l.Name.Equal(linkType.ToString()))?.Url;
 
-                    List<Link> linksToCopy = updatedLinks.Where(l => !File.Exists(getPath(updatedGame.NewData, l))).ToList();
-                    List<Link> toConfirm = updatedLinks.Where(l => File.Exists(getPath(updatedGame.NewData, l))).ToList();
-                    linksToCopy.AddRange(toConfirm);
-
-                    foreach( Link link in linksToCopy)
+                    if (!newLink.IsNullOrEmpty()
+                        && !newLink.Equal(oldLink)
+                        && !newLink.Equal(getMediaFilePath(update.NewData, linkType))
+                        && File.Exists(newLink)
+                    )
                     {
-                        CopyExtraMetadata(updatedGame.NewData, link, true);
+                        CopyExtraMetadata(update.NewData, newLink, linkType.ToString());
                     }
                 }
+                update.NewData.Links = newLinks.Where(l => !Enum.GetNames(typeof(LinkField)).Contains(l.Name)).ToObservable();;
             }
+        }
+
+        static public List<string> DistinctResources(List<string> paths, string original = null)
+        {
+            List<string> workPaths =
+                paths.Distinct()
+                     .Where(p => File.Exists(p))
+                     .ToList();
+
+            if (!original.IsNullOrEmpty())
+            {
+                workPaths.Insert(0, original);
+            }
+
+            List<string> result = workPaths.Select(p => new MediaFileInfo(p))
+                     .Distinct()
+                     .Select(mi => mi.FilePath)
+                     .ToList();
+
+            return result;
         }
     }
 }

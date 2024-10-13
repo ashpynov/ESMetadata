@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Numerics;
@@ -6,11 +8,13 @@ using System.Runtime.Remoting.Messaging;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Windows;
 using System.Windows.Documents;
+using System.Windows.Media;
 
-namespace ESMetadata.Common
+namespace ESMetadata.Tools
 {
-    public static class Tools
+    public static class Fuzzy
     {
         public static string quickRemoveArticlesAndTrim(string input)
         {
@@ -51,6 +55,7 @@ namespace ESMetadata.Common
 
             return result.ToString();
         }
+
         private static string quickTrim(string name)
         {
             StringBuilder sb = new StringBuilder();
@@ -62,7 +67,7 @@ namespace ESMetadata.Common
             return sb.ToString();
         }
 
-        public static string DeConventGameName(string name, bool ignoreArticles)
+        public static string SimplifyName(string name, bool ignoreArticles)
         {
             int len = name.IndexOfAny(new char[] { '(', '[' });
             string cutted = (len > 0 ? name.Substring(0, len) : name).ToLower().Trim();
@@ -130,52 +135,6 @@ namespace ESMetadata.Common
             int stepsToSame = LevenshteinDistance(first, second, (int)((1.0 - minSimilarity) * maxLen));
             return 1.0 - ((double)stepsToSame / (double)maxLen);
         }
-
-
-        public static bool Equal(string a, string b) => 0 == string.Compare(a, b, StringComparison.OrdinalIgnoreCase);
-
-        public static bool FastFileCompare(string file1, string file2)
-        {
-            if (File.Exists(file1) != File.Exists(file2))
-                return true;
-
-            FileInfo fileInfo1 = new FileInfo(file1);
-            FileInfo FileInfo2 = new FileInfo(file2);
-
-            if (fileInfo1.Length != FileInfo2.Length)
-                return true;
-
-
-            // Check if first 100 bytes differ
-            const int compLength = 100;
-            byte[] buffer1 = new byte[compLength];
-            byte[] buffer2 = new byte[compLength];
-
-            using (FileStream fs1 = new FileStream(file1, FileMode.Open, FileAccess.Read))
-            using (FileStream fs2 = new FileStream(file2, FileMode.Open, FileAccess.Read))
-            {
-                int bytesRead1 = fs1.Read(buffer1, 0, compLength);
-                int bytesRead2 = fs2.Read(buffer2, 0, compLength);
-                if (bytesRead1 != bytesRead2 || !buffer1.Take(bytesRead1).SequenceEqual(buffer2.Take(bytesRead2)))
-                {
-                    return true;
-                }
-                using (MD5 md5 = MD5.Create())
-                {
-                    byte[] hash1;
-                    byte[] hash2;
-                    hash1 = md5.ComputeHash(fs1);
-                    hash2 = md5.ComputeHash(fs2);
-
-                    if (hash1.SequenceEqual(hash2))
-                    {
-                        return true;
-                    }
-                }
-            }
-            return false;
-        }
-
 
     };
 };

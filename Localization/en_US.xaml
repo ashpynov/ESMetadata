@@ -28,12 +28,26 @@ EmulationStation Metadata Source may mark imported games during metadata importi
     <sys:String x:Key="LOC_ESMETADATA_SelectIcon">Select icon</sys:String>
     <sys:String x:Key="LOC_ESMETADATA_SelectCoverImage">Select cover</sys:String>
     <sys:String x:Key="LOC_ESMETADATA_SelectBackgroundImage">Select background</sys:String>
+    <sys:String x:Key="LOC_ESMETADATA_SelectVideoTrailer">Select Video</sys:String>
+    <sys:String x:Key="LOC_ESMETADATA_SelectLogo">Select Logo</sys:String>
+    <sys:String x:Key="LOC_ESMETADATA_SelectBezel">Select Bezel</sys:String>
+    <sys:String x:Key="LOC_ESMETADATA_SelectFanart">Select Fanart</sys:String>
+
+    <sys:String x:Key="LOC_ESMETADATA_DownloadVideoTrailer">Copy Video</sys:String>
+    <sys:String x:Key="LOC_ESMETADATA_DownloadLogo">Copy Logo</sys:String>
+    <sys:String x:Key="LOC_ESMETADATA_DownloadBezel">Copy Bezel</sys:String>
+    <sys:String x:Key="LOC_ESMETADATA_DownloadFanart">Copy Fanart</sys:String>
 
     <sys:String x:Key="LOC_ESMETADATA_BestMatchWithDesc">Best match should have Description</sys:String>
     <sys:String x:Key="LOC_ESMETADATA_BestMatchWithDescHint" xml:space="preserve">Missing `Description` field in EmulationStation record usually means that this game was automatically imported. This usually means that other field are missed too.
 Enable this option to extend game data using second best match record with `Description` field, if fist one does not have it.
 
-May give errors for sequel games as soon as e.g `Earthworm Jim` and `Earthworm Jim 2` just one-of-twelve letters difference.
-    </sys:String>
+May give errors for sequel games as soon as e.g `Earthworm Jim` and `Earthworm Jim 2` just one-of-twelve letters difference.</sys:String>
+
+    <sys:String x:Key="LOC_ESMETADATA_NonStrictMediaSuggest">Non-strict Media suggest</sys:String>
+    <sys:String x:Key="LOC_ESMETADATA_NonStrictMediaSuggestHint" xml:space="preserve">Less strict record selection for Media suggestion.
+
+May wrongly suggest sequels.</sys:String>
     <sys:String x:Key="LOC_ESMETADATA_IgnoreArticles">Ignore a/an/the articles</sys:String>
+
 </ResourceDictionary>

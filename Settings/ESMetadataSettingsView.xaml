@@ -107,7 +107,18 @@
                 ToolTip="{DynamicResource LOC_ESMETADATA_FavouritesHint}"/>
             <TextBlock
                 Text="&#xEFCA;" FontFamily="IcoFont" Margin="10,0,0,0"
-                ToolTip="{DynamicResource LOC_ESMETADATA_ExtraMetadataIntegrationHint}"/>
+                ToolTip="{DynamicResource LOC_ESMETADATA_FavouritesHint}"/>
+        </StackPanel>
+
+        <StackPanel Orientation="Horizontal" Margin="0,5,5,5">
+            <CheckBox
+                Content="{DynamicResource LOC_ESMETADATA_ImportGameStatistic}"
+                IsChecked="{Binding Settings.ImportGameStatistic}"
+                ToolTip="{DynamicResource LOC_ESMETADATA_FavouritesHint}"
+                HorizontalAlignment="Left"/>
+            <TextBlock
+                Text="&#xEFCA;" FontFamily="IcoFont" Margin="10,0,0,0"
+                ToolTip="{DynamicResource LOC_ESMETADATA_FavouritesHint}"/>
         </StackPanel>
         <CheckBox
             Content="{DynamicResource LOC_ESMETADATA_AutomaticlySelectImage}"

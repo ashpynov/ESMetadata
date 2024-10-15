@@ -20,6 +20,8 @@ namespace ESMetadata.Models.Gamelist
         Manual,
         Boxback,
         Favorite,
-
+        PlayCount,
+        LastPlayed,
+        GameTime,
     };
 }

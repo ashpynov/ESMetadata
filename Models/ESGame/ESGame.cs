@@ -94,7 +94,13 @@ namespace ESMetadata.Models.ESGame
         public List<string> GetMultiField(MetadataField field, LinkField link = LinkField.None)
         => data.Where(f => f.Field == field && f.LinkName == link).Select(f => f.Value).ToList();
 
+        public List<string> GetMultiField(MetadataField field, GamelistField source)
+        => data.Where(f => f.Field == field && f.Source == source).Select(f => f.Value).ToList();
+
         public string GetField(MetadataField field, LinkField link = LinkField.None)
         => GetMultiField(field, link).FirstOrDefault();
+
+        public string GetField(MetadataField field, GamelistField source)
+        => GetMultiField(field, source).FirstOrDefault();
     };
 }

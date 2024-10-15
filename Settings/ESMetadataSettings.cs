@@ -55,6 +55,8 @@ namespace ESMetadata.Settings
         public bool Overwrite { get; set; } = false;
         public bool ImportFavorite { get; set; } = true;
 
+        public bool ImportGameStatistic { get; set; } = true;
+
         private bool selectAutomaticly = true;
         public bool SelectAutomaticly
         {

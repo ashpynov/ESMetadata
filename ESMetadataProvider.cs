@@ -14,6 +14,8 @@ using ESMetadata.Settings;
 using ESMetadata.ViewModels;
 using ESMetadata.Models.ESGame;
 using ESMetadata.Extensions;
+using ESMetadata.Models.Gamelist;
+using System.Runtime.InteropServices;
 
 namespace ESMetadata
 {
@@ -295,13 +297,39 @@ namespace ESMetadata
 
         public override IEnumerable<MetadataProperty> GetTags(GetMetadataFieldArgs args)
         {
-            if (
-                Settings.ImportFavorite
-             && esLibrary.Game.GetField(MetadataField.Tags).Equal("true")
+            if (Settings.ImportFavorite
+             && esLibrary.Game.GetField(MetadataField.Tags, GamelistField.Favorite).Equal("true")
              && !Options.GameData.Favorite)
-             {
+            {
                 Options.GameData.Favorite = true;
-             }
+            }
+
+            if (Settings.ImportGameStatistic)
+            {
+                string PlayCount = esLibrary.Game.GetField(MetadataField.Tags, GamelistField.PlayCount);
+                if (!PlayCount.IsNullOrEmpty()
+                    && Options.GameData.PlayCount == 0
+                    && ulong.TryParse(PlayCount, out ulong playCount))
+                {
+                    Options.GameData.PlayCount = playCount;
+                }
+
+                string LastPlayed = esLibrary.Game.GetField(MetadataField.Tags, GamelistField.LastPlayed);
+                if (!LastPlayed.IsNullOrEmpty()
+                    && Options.GameData.LastActivity is null
+                    && DateTime.TryParseExact(LastPlayed, "yyyyMMddTHHmmss", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime date))
+                {
+                    Options.GameData.LastActivity = date;
+                }
+
+                string GameTime = esLibrary.Game.GetField(MetadataField.Tags, GamelistField.GameTime);
+                if (!GameTime.IsNullOrEmpty()
+                    && Options.GameData.Playtime == 0
+                    && ulong.TryParse(GameTime, out ulong gameTime))
+                {
+                    Options.GameData.Playtime = gameTime;
+                }
+            }
 
             return default;
         }
@@ -317,7 +345,9 @@ namespace ESMetadata
             string destPath = getMediaFilePath(game, path, type);
 
             Directory.CreateDirectory(Path.GetDirectoryName(destPath));
-            File.Copy(path, destPath, true);
+
+            // TODO stop currently played metadata
+            try { File.Copy(path, destPath, true); } catch { }
         }
 
 

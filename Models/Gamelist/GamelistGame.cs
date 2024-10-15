@@ -73,6 +73,9 @@ namespace ESMetadata.Models.Gamelist
         public string Genre { get; set; }
         public string Region { get; set; }
         public string Favorite { get; set; }
+        public string PlayCount { get; set; }
+        public string LastPlayed { get; set; }
+        public string GameTime { get; set; }
 
         public XmlSchema GetSchema() => null;
         public void WriteXml(XmlWriter writer) { }

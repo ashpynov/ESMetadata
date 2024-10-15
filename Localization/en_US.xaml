@@ -6,6 +6,7 @@
     <sys:String x:Key="LOC_ESMETADATA_CopyExtraResources">Copy to ExtraMetadata:</sys:String>
     <sys:String x:Key="LOC_ESMETADATA_OverwriteExisting">Overwrite existing files</sys:String>
     <sys:String x:Key="LOC_ESMETADATA_GetFavorites">Import 'Favorite' mark when 'Tags' is providing</sys:String>
+    <sys:String x:Key="LOC_ESMETADATA_ImportGameStatistic">Import in game statistic when 'Tags' is providing</sys:String>
     <sys:String x:Key="LOC_ESMETADATA_AutomaticlySelectImage">Automaticly select image during bulk loading with next priority:</sys:String>
     <sys:String x:Key="LOC_ESMETADATA_ForIcon">Icon:</sys:String>
     <sys:String x:Key="LOC_ESMETADATA_ForCoverImage">Cover Image:</sys:String>
@@ -18,9 +19,11 @@ EmulationStation Metadata Source may copy this media resources to ExtraMetadata 
 
 Original media source paths will be stored in Links section.</sys:String>
 
-    <sys:String x:Key="LOC_ESMETADATA_FavouritesHint"  xml:space="preserve">Favourite mark do not suported by Playnite Metadata Source API natively.
+    <sys:String x:Key="LOC_ESMETADATA_FavouritesHint"  xml:space="preserve">Favourite mark and ingame statistic do not suported by Playnite Metadata Source API natively.
 
-EmulationStation Metadata Source may mark imported games during metadata importing if 'Tags' import is enabled for EmulationStation Metadata source.</sys:String>
+EmulationStation Metadata Source may mark games as Favorite, or import game play statistic if 'Tags' import is enabled for EmulationStation Metadata source.
+
+Original tags will be unchanged</sys:String>
 
     <sys:String x:Key="LOC_ESMETADATA_DownscaleImage">Downscale image proportionally to next maximum size:</sys:String>
     <sys:String x:Key="LOC_ESMETADATA_DownscaleImageWidth" xml:space="preserve">x</sys:String>
@@ -59,5 +62,6 @@ May wrongly suggest sequels.</sys:String>
     <sys:String x:Key="LOC_ESMETADATA_KeepOriginalPath">Keep original path of copied media</sys:String>
     <sys:String x:Key="LOC_ESMETADATA_ImportManual">Import game manual</sys:String>
 
+    <sys:String x:Key="LOC_ESMETADATA_HelpMe">Help me!</sys:String>
 
 </ResourceDictionary>

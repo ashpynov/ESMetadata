@@ -32,7 +32,10 @@ namespace ESMetadata.Models.ESGame
             { MetadataField.Links,              GamelistField.Bezel,      LinkField.Bezel },
             { MetadataField.Links,              GamelistField.Boxback,    LinkField.Boxback },
             { MetadataField.Links,              GamelistField.Manual,     LinkField.Manual },
-            { MetadataField.Tags,               GamelistField.Favorite }
+            { MetadataField.Tags,               GamelistField.Favorite },
+            { MetadataField.Tags,               GamelistField.PlayCount },
+            { MetadataField.Tags,               GamelistField.LastPlayed },
+            { MetadataField.Tags,               GamelistField.GameTime },
         };
         private static readonly List<MetadataField> ImagesField = new List<MetadataField>()
             {

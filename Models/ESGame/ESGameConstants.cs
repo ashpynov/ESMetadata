@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using ESMetadata.Models.Gamelist;
@@ -29,7 +30,9 @@ namespace ESMetadata.Models.ESGame
             { MetadataField.Links,              GamelistField.Marquee,    LinkField.Logo },
             { MetadataField.Links,              GamelistField.Fanart,     LinkField.Fanart },
             { MetadataField.Links,              GamelistField.Bezel,      LinkField.Bezel },
-            { MetadataField.Tags,               GamelistField.Favourites }
+            { MetadataField.Links,              GamelistField.Boxback,    LinkField.Boxback },
+            { MetadataField.Links,              GamelistField.Manual,     LinkField.Manual },
+            { MetadataField.Tags,               GamelistField.Favorite }
         };
         private static readonly List<MetadataField> ImagesField = new List<MetadataField>()
             {
@@ -51,12 +54,28 @@ namespace ESMetadata.Models.ESGame
             .Distinct()
             .ToList();
 
-        static public List<GamelistField> GetSourcesForField(MetadataField field)
-        => FieldMap
-            .Where(f => f.Field == field)
-            .Select(f => f.Source)
+        static public readonly List<LinkField> LinkFields
+        = Enum.GetValues(typeof(LinkField))
+            .Cast<LinkField>()
+            .Where(l => l != LinkField.None)
             .ToList();
 
+        static public List<string> GetSourceNamesForField(MetadataField field)
+        => FieldMap
+            .Where(f => f.Field == field)
+            .Select(f => f.Source.ToString())
+            .ToList();
 
+        static public List<LinkField> DefaultCopy
+        = new List<LinkField>()
+        {
+            LinkField.VideoTrailer,
+            LinkField.Logo,
+            LinkField.Bezel
+        };
+        static public List<LinkField> DefaultAsLinks
+        = LinkFields
+            .Where(l => l != LinkField.VideoTrailer && l != LinkField.Logo)
+            .ToList();
     }
 }

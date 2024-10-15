@@ -17,6 +17,9 @@ namespace ESMetadata.Models.Gamelist
         Publisher,
         Video,
         Bezel,
-        Favourites
+        Manual,
+        Boxback,
+        Favorite,
+
     };
 }

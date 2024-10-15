@@ -24,8 +24,6 @@ namespace ESMetadata
         private readonly ESMetadataSettings Settings;
         private readonly ESMetadataLibrary esLibrary;
 
-        private bool TagsRequested = false;
-
         public override List<MetadataField> AvailableFields
         {
             get => esLibrary.Game.GetAvailableFields();
@@ -198,15 +196,23 @@ namespace ESMetadata
         public override IEnumerable<MetadataProperty> GetPublishers(GetMetadataFieldArgs args)
         => ToMetadataProperty(esLibrary.Game.GetField(MetadataField.Publishers), '/');
 
+        static private string TempLinkName(string name) => $"[ESMS {name}]";
+        static private string TempLinkName(LinkField field) => TempLinkName(field.ToString());
+
+
+        static private string TranslateName(string name) => ResourceProvider.GetString($"LOC_ESMETADATA_{name}");
+        static private string TranslateName(LinkField field) => TranslateName(field.ToString());
 
         public override IEnumerable<Link> GetLinks(GetMetadataFieldArgs args)
         {
 
-            IEnumerable<LinkField> types = Settings.CopyExtraMetadataFields;
+            IEnumerable<LinkField> types = Settings.ProcessLinkFields;
+
+            IEnumerable<string> removeLinks = Enum.GetNames(typeof(LinkField)).Select(n => TempLinkName(n));
 
             List<Link> links= Options.GameData
                 ?.Links
-                ?.Where(l => !Enum.GetNames(typeof(LinkField)).Contains(l.Name))
+                ?.Where(l => !removeLinks.Contains(l.Name))
                 ?.ToList()
                 ?? new List<Link>();
 
@@ -215,12 +221,37 @@ namespace ESMetadata
                 return links.AllOrDefault();
             }
 
-            foreach (LinkField type in types )
+            foreach (LinkField type in Settings.ImportAsLinkFields )
+            {
+                List<Link> newLinks = esLibrary.Game
+                                .GetMultiField(MetadataField.Links, type)
+                                ?.Select(p => new Link(TranslateName(type), p))
+                                ?.ToList();
+
+                if (!newLinks.IsNullOrEmpty())
+                {
+                    if (Settings.CopyExtraMetadataFields.Contains(type)
+                         && !Settings.KeepOriginalLinkPaths
+                         && newLinks.Count() == 1)
+                    {
+                        var destPath = getMediaFilePath(Options.GameData, newLinks.First().Url, type.ToString());
+                        if (Options.GameData.Links.Any(l=>l.Name.Equal(TranslateName(type)) && l.Url.Equal(destPath)))
+                        {
+                            newLinks.First().Url = destPath;
+                        }
+                    }
+
+                    links.RemoveAll(l => l.Name.Equal(TranslateName(type)));
+                    links.AddMissing(newLinks);
+                };
+            }
+
+            foreach (LinkField type in Settings.CopyExtraMetadataFields )
             {
                 List<string> files = esLibrary.Game
                                 .GetMultiField(MetadataField.Links, type);
 
-                string original = getMediaFilePath(Options.GameData, type);
+                string original = getMediaFilePath(Options.GameData, files.FirstOrDefault(), type.ToString());
                 if (!Settings.Overwrite && Options.IsBackgroundDownload && File.Exists(original))
                 {
                     continue;
@@ -237,31 +268,41 @@ namespace ESMetadata
                         case LinkField.Bezel:
                         case LinkField.Fanart:
                         case LinkField.Logo:
+                        case LinkField.Boxback:
                             selected = ChooseImageFile(files, ResourceProvider.GetString($"LOC_ESMETADATA_Select{type}"), original: original);
                             break;
                         default:
-                            links.AddMissing(files.Select(p => new Link(type.ToString(), p)));
+                            links.AddMissing(files.Select(p => new Link(TempLinkName(type), p)));
                             break;
                     }
                     if (!selected.IsNullOrEmpty() && !selected.Equal(original))
                     {
-                        links.AddMissing(files.Select(p => new Link(type.ToString(), selected)));
+                        links.AddMissing(files.Select(p => new Link(TempLinkName(type), selected)));
                     }
                 }
+            }
 
+            if (Settings.ImportManual)
+            {
+                var manual = esLibrary.Game.GetField(MetadataField.Links, LinkField.Manual);
+                if( !manual.IsNullOrEmpty())
+                {
+                    Options.GameData.Manual = manual;
+                }
             }
             return links.AllOrDefault();
         }
 
         public override IEnumerable<MetadataProperty> GetTags(GetMetadataFieldArgs args)
         {
-            if ( Settings.ImportFavorite )
-            {
-                TagsRequested = true;
-                return Options.GameData.Tags != null
-                    ? Options.GameData.Tags.Select(t => new MetadataNameProperty(t.Name)).ToList() as IEnumerable<MetadataProperty>
-                    : new List<MetadataProperty>();
-            }
+            if (
+                Settings.ImportFavorite
+             && esLibrary.Game.GetField(MetadataField.Tags).Equal("true")
+             && !Options.GameData.Favorite)
+             {
+                Options.GameData.Favorite = true;
+             }
+
             return default;
         }
 
@@ -282,25 +323,14 @@ namespace ESMetadata
 
         public override void Dispose()
         {
-            Game game = PlayniteApi.Database.Games.FirstOrDefault(g => g.Id == Options.GameData.Id);
-
-            if ( Options.IsBackgroundDownload
-              && Settings.ImportFavorite
-              && TagsRequested )
-            {
-
-                if (game != default
-                    && esLibrary.Game.GetField(MetadataField.Tags).Equal("true")
-                    && !game.Favorite)
-                {
-                    game.Favorite = true;
-                    PlayniteApi.Database.Games.Update(game);
-                }
-            }
         }
 
         static private string getMediaFilePath(Game game, string path, string type)
         {
+            if (path.IsNullOrEmpty())
+            {
+                return getDefaultMediaFilePath(game, type.ToEnum<LinkField>());
+            }
             return Path.Combine(getGameExtraMetadataPath(game), type + Path.GetExtension(path));
         }
 
@@ -309,7 +339,7 @@ namespace ESMetadata
             return Path.Combine(ESMetadata.PlayniteApi.Paths.ConfigurationPath, "ExtraMetadata", "Games", game.Id.ToString());
         }
 
-        static private string getMediaFilePath(Game game, LinkField type)
+        static private string getDefaultMediaFilePath(Game game, LinkField type)
         {
             string path =  Path.Combine(getGameExtraMetadataPath(game), type.ToString());
             switch (type)
@@ -317,22 +347,20 @@ namespace ESMetadata
                 case LinkField.VideoTrailer:
                     return path + ".mp4";
                 case LinkField.Bezel:
-                case LinkField.Fanart:
                 case LinkField.Logo:
                     return path + ".png";
+                case LinkField.Fanart:
+                case LinkField.Boxback:
+                    return path + ".png";
+                case LinkField.Manual:
+                    return path + ".pdf";
             }
             return path;
-       }
+        }
 
         static public void Games_ItemUpdated(object sender, ItemUpdatedEventArgs<Game> args)
         {
             IEnumerable<LinkField> LinkTypes = Enum.GetValues(typeof(LinkField)).Cast<LinkField>();
-
-            List<LinkField> linkTags = Enum
-                    .GetValues(typeof(LinkField))
-                    .Cast<LinkField>()
-                    .Where(a => a != LinkField.None && a != LinkField.VideoTrailer )
-                    .ToList();
 
             foreach (ItemUpdateEvent<Game> update in args.UpdatedItems)
             {
@@ -345,19 +373,45 @@ namespace ESMetadata
 
                 foreach (LinkField linkType in LinkTypes)
                 {
-                    string oldLink = oldLinks.FirstOrDefault(l => l.Name.Equal(linkType.ToString()))?.Url;
-                    string newLink = newLinks.FirstOrDefault(l => l.Name.Equal(linkType.ToString()))?.Url;
+                    string oldLink = oldLinks.FirstOrDefault(l => l.Name.Equal(TempLinkName(linkType)))?.Url;
+                    string newLink = newLinks.FirstOrDefault(l => l.Name.Equal(TempLinkName(linkType)))?.Url;
 
                     if (!newLink.IsNullOrEmpty()
                         && !newLink.Equal(oldLink)
-                        && !newLink.Equal(getMediaFilePath(update.NewData, linkType))
+                        && !newLink.Equal(getMediaFilePath(update.NewData, newLink, linkType.ToString()))
                         && File.Exists(newLink)
                     )
                     {
                         CopyExtraMetadata(update.NewData, newLink, linkType.ToString());
                     }
+                    if (!newLink.IsNullOrEmpty())
+                    {
+                        if (ESMetadata.Settings.ImportAsLinkFields.Contains(linkType)
+                            && !ESMetadata.Settings.KeepOriginalLinkPaths)
+                        {
+                            var link = newLinks?.FirstOrDefault(l => l.Name.Equal(TranslateName(linkType)) && l.Url.Equal(newLink));
+                            if (link != null)
+                            {
+                                link.Url = getMediaFilePath(update.NewData, link.Url, linkType.ToString());
+                            }
+                        }
+                    }
+                    if ( linkType == LinkField.Manual
+                        && ESMetadata.Settings.ImportManual
+                        && !ESMetadata.Settings.KeepOriginalLinkPaths
+                        && !newLink.IsNullOrEmpty()
+                        && newLink.Equal(update.NewData.Manual))
+                    {
+                        update.NewData.Manual = getMediaFilePath(update.NewData, newLink, linkType.ToString());
+                    }
+
                 }
-                update.NewData.Links = newLinks.Where(l => !Enum.GetNames(typeof(LinkField)).Contains(l.Name)).ToObservable();;
+                update.NewData.Links = newLinks
+                    .Where(l => !Enum.GetNames(typeof(LinkField))
+                        .Select(t => TempLinkName(t))
+                        .Contains(l.Name)).ToObservable();
+
+
             }
         }
 

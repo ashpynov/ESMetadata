@@ -14,7 +14,8 @@ namespace ESMetadata
     {
         private static readonly ILogger logger = LogManager.GetLogger();
 
-        private ESMetadataSettingsViewModel SettingsModel { get; set; }
+        private static ESMetadataSettingsViewModel SettingsModel { get; set; }
+        public static ESMetadataSettings Settings { get => SettingsModel.Settings; }
 
         public override Guid Id { get; } = Guid.Parse("71f952a8-4763-41e3-9934-7fe02a1e33d4");
 

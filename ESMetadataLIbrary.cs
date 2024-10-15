@@ -62,6 +62,10 @@ namespace ESMetadata
         private void LoadBestMatchedGame( Game game )
         {
             List<Tuple<GamelistGame,double>> similarGames = FindGames(game);
+            if (similarGames.IsNullOrEmpty())
+            {
+                return;
+            }
 
             LoadSameRateGame(ref similarGames, similarGames.First());
 

@@ -47,11 +47,11 @@ namespace ESMetadata.Models.ESGame
 
             actualFieldMap.RemoveAll(f => f.Field == field);
 
-            ImageSourceField fieldSettings = p.GetValue(Settings) as ImageSourceField;
+            MultiselectList fieldSettings = p.GetValue(Settings) as MultiselectList;
             actualFieldMap.AddRange(fieldSettings.Sources
                 .Where(s => s.Enabled)
                 .Select(s => FieldMap
-                    .Where(f => f.Field == field && f.Source == s.Field)
+                    .Where(f => f.Field == field && f.Source.ToString().Equal(s.Name))
                     .FirstOrDefault()
                 )
             );
@@ -78,15 +78,12 @@ namespace ESMetadata.Models.ESGame
                 }
                 string value = prop.GetValue(game) as string;
 
-                if (f.Source == GamelistField.Favourites && value.IsNullOrEmpty() && Settings.ImportFavorite)
-                    value = "False";
-
                 if (value.IsNullOrEmpty())
                 {
                     continue;
                 }
                 bool isImage = ImagesSources.Contains(f.Source);
-                data.AddMissing(new ESGameField(f.Field, f.Source, f.LinkName, prop.GetValue(game) as string));
+                data.AddMissing(new ESGameField(f.Field, f.Source, f.LinkName, value));
             }
         }
 

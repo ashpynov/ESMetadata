@@ -13,6 +13,10 @@ namespace ESMetadata.Extensions
         {
             return 0 == string.Compare(source ?? "", second ?? "", StringComparison.OrdinalIgnoreCase);
         }
+        public static bool Equal<TEnum>(this string source, TEnum second)
+        {
+            return 0 == string.Compare(source ?? "", second.ToString(), StringComparison.OrdinalIgnoreCase);
+        }
         public static TEnum ToEnum<TEnum>(this string source, TEnum fallback = default) where TEnum : struct
         {
             if (Enum.TryParse<TEnum>(source, out TEnum o))

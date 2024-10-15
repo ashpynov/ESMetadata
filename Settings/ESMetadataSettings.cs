@@ -1,4 +1,5 @@
 ﻿using ESMetadata.Extensions;
+using ESMetadata.Models;
 using ESMetadata.Models.ESGame;
 using Playnite.SDK;
 using Playnite.SDK.Data;
@@ -10,6 +11,7 @@ using System.ComponentModel;
 using System.Configuration;
 using System.Drawing;
 using System.Linq;
+using System.Windows.Converters;
 
 
 namespace ESMetadata.Settings
@@ -17,33 +19,39 @@ namespace ESMetadata.Settings
 
     public partial class ESMetadataSettings : ObservableObject
     {
-        private ImageSourceField iconSource;
-        public ImageSourceField IconSource
+        private MultiselectList iconSource;
+        public MultiselectList IconSource
         {
-            get => iconSource;
-            set => SetValue(ref iconSource, value);
+            get => iconSource ?? (IconSource = null);
+            set => MultiselectList.SetValue(
+                ref iconSource,
+                value,
+                ESGame.GetSourceNamesForField(MetadataField.Icon)
+            );
         }
 
-        private ImageSourceField coverImageSource;
-        public ImageSourceField CoverImageSource
+        private MultiselectList coverImageSource;
+        public MultiselectList CoverImageSource
         {
-            get => coverImageSource;
-            set => SetValue(ref coverImageSource , value);
+            get => coverImageSource ?? (CoverImageSource = null);
+            set => MultiselectList.SetValue(
+                ref coverImageSource,
+                value,
+                ESGame.GetSourceNamesForField(MetadataField.CoverImage)
+            );
         }
 
-        private ImageSourceField backgroundImageSource;
-        public ImageSourceField BackgroundImageSource
+        private MultiselectList backgroundImageSource;
+        public MultiselectList BackgroundImageSource
         {
-            get => backgroundImageSource;
-            set => SetValue(ref backgroundImageSource, value);
+            get => backgroundImageSource ?? (BackgroundImageSource = null);
+            set => MultiselectList.SetValue(
+                ref backgroundImageSource,
+                value,
+                ESGame.GetSourceNamesForField(MetadataField.BackgroundImage)
+            );
         }
 
-        [DontSerialize]
-        public bool CopyExtraMetadata
-        {
-            get => CopyExtraMetadataTriple != false;
-            set => CopyExtraMetadataTriple = value;
-        }
         public bool Overwrite { get; set; } = false;
         public bool ImportFavorite { get; set; } = true;
 
@@ -68,86 +76,82 @@ namespace ESMetadata.Settings
         public int BackgroundImageMaxWidth { get; set; } = 1920;
         public int BackgroundImageMaxHeight { get; set; } = 1080;
 
-        public class LinkFieldOptions : ObservableObject
+        private MultiselectList importToExtraMetadata;
+        public MultiselectList ImportToExtraMetadata
         {
-            public string Name { get; set; }
-
-            [DontSerialize]
-            public string TranslateName { get => ResourceProvider.GetString($"LOC_ESMETADATA_Download{Name}"); }
-
-            private bool isChecked = true;
-            public bool IsChecked
-            {
-                get => isChecked;
-                set => SetValue(ref isChecked, value);
-            }
+            get => importToExtraMetadata ?? (ImportToExtraMetadata = null);
+            set => MultiselectList.SetValue(
+                ref importToExtraMetadata,
+                value,
+                ESGame.LinkFields.ToStrings(),
+                defaultEnabled: ESGame.DefaultCopy.ToStrings()
+            );
         }
 
-        private ObservableCollection<LinkFieldOptions> extraMetadataOptions;
-        public ObservableCollection<LinkFieldOptions> ExtraMetadataOptions
+        private bool copyExtraMetadata = true;
+        public bool CopyExtraMetadata
         {
-            get => extraMetadataOptions ?? (ExtraMetadataOptions = null);
-            set
-            {
-                extraMetadataOptions = Enum.GetValues(typeof(LinkField))
-                    .Cast<LinkField>()
-                    .Where(n => n != LinkField.None)
-                    .Select(linkField
-                        => new LinkFieldOptions()
-                        {
-                            Name = linkField.ToString(),
-                            IsChecked =
-                                value?.FirstOrDefault(o => o.Name == linkField.ToString())?.IsChecked ?? true,
-                        })
-                    .ToObservable();
-                OnPropertyChanged();
-            }
+            get => copyExtraMetadata;
+            set => SetValue(ref copyExtraMetadata, value);
         }
+
+        private bool importAsLinks = true;
+        public bool ImportAsLinks
+        {
+            get => importAsLinks;
+            set => SetValue(ref importAsLinks, value);
+        }
+
+        private MultiselectList importAsLinksOptions;
+        public MultiselectList ImportAsLinksOptions
+        {
+            get => importAsLinksOptions ?? (ImportAsLinksOptions = null);
+            set => MultiselectList.SetValue(
+                ref importAsLinksOptions,
+                value,
+                ESGame.LinkFields.ToStrings(),
+                defaultEnabled: ESGame.DefaultAsLinks.ToStrings()
+            );
+        }
+
+        public bool ImportManual { get; set; } = true;
+
+        public bool KeepOriginalLinkPaths { get; set; } = true;
 
         [DontSerialize]
         public ObservableCollection<LinkField> CopyExtraMetadataFields
         {
-            get => ExtraMetadataOptions
-                .Where(o => o.IsChecked)
+            get => ImportToExtraMetadata.Sources
+                .Where(o => CopyExtraMetadata && o.Enabled)
                 .Select(o => o.Name.ToEnum<LinkField>())
                 .ToObservable();
         }
 
         [DontSerialize]
-        public RelayCommand CheckBoxChanged
+        public ObservableCollection<LinkField> ImportAsLinkFields
         {
-            get => new RelayCommand(
-            () => {
-                OnPropertyChanged(nameof(CopyExtraMetadataTriple));
-                OnPropertyChanged(nameof(CopyExtraMetadata));
-            });
+            get => ImportAsLinksOptions.Sources
+                .Where(o => ImportAsLinks && o.Enabled)
+                .Select(o => o.Name.ToEnum<LinkField>())
+                .ToObservable();
         }
 
         [DontSerialize]
-        public bool? CopyExtraMetadataTriple
+        public ObservableCollection<LinkField> ProcessLinkFields
         {
             get
             {
-                if (ExtraMetadataOptions?.All(o => o.IsChecked)?? true)
+                ObservableCollection<LinkField> result = new ObservableCollection<LinkField>();
+                result.AddMissing(CopyExtraMetadataFields);
+                result.AddMissing(ImportAsLinkFields);
+                if (ImportManual)
                 {
-                    return true;
+                     result.AddMissing(LinkField.Manual);
                 }
-                else if (!ExtraMetadataOptions.Any(o => o.IsChecked))
-                {
-                    return false;
-                }
-                return null;
-            }
-            set
-            {
-                foreach( LinkFieldOptions o in ExtraMetadataOptions)
-                {
-                    o.IsChecked = value == true;
-                }
-                OnPropertyChanged();
-                OnPropertyChanged(nameof(CopyExtraMetadata));
+                return result;
             }
         }
+
         private Size Unlimited = new Size(int.MaxValue, int.MaxValue);
 
         public Size GetIconMaxSize() => DownscaleImage ? new Size(IconMaxWidth, IconMaxHeight) : Unlimited;
@@ -156,15 +160,7 @@ namespace ESMetadata.Settings
 
         public bool BestMatchWithDesc { get; set; } = true;
         public bool IgnoreArticles { get; set; } = true;
-
         public bool NonStrictMediaSuggest { get; set; } = false;
-
-        public void SetupSourceFields()
-        {
-            IconSource = ImageSourceField.SetupField(IconSource, MetadataField.Icon);
-            CoverImageSource = ImageSourceField.SetupField(CoverImageSource, MetadataField.CoverImage);
-            BackgroundImageSource = ImageSourceField.SetupField(BackgroundImageSource, MetadataField.BackgroundImage);
-        }
 
     }
 
@@ -201,7 +197,6 @@ namespace ESMetadata.Settings
             {
                 Settings = new ESMetadataSettings();
             }
-            Settings.SetupSourceFields();
         }
 
         public void BeginEdit()

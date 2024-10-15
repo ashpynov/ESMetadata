@@ -3,12 +3,14 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:conv="clr-namespace:ESMetadata.Converters"
              mc:Ignorable="d"
              d:DesignHeight="400" d:DesignWidth="600">
     <UserControl.Resources>
         <ControlTemplate TargetType="ContentControl" x:Key="SourceSelector">
             <ToggleButton Name="Toggle" HorizontalContentAlignment="Stretch"
                             Focusable="False" Padding="0"
+                            Tag="{TemplateBinding Tag}"
                             Foreground="{DynamicResource TextBrush}">
                 <ToggleButton.Content>
                     <Grid>
@@ -38,18 +40,24 @@
                                                 VirtualizingPanel.IsVirtualizing="True"
                                                 VirtualizingPanel.VirtualizationMode="Recycling">
                                     <ItemsControl.ItemTemplate>
+
                                         <DataTemplate>
                                             <DockPanel Margin="0,2,0,2" Height="26">
                                                 <Button Content="6" FontFamily="Marlett" Margin="2,0,2,0"
                                                         DockPanel.Dock="Right" Padding="2" VerticalAlignment="Center"
+                                                        IsEnabled="{Binding DownIsEnabled}"
+                                                        Visibility="{Binding Tag, RelativeSource={RelativeSource AncestorType=ToggleButton}}"
                                                         Command="{Binding DataContext.MoveSourceDownCommand, RelativeSource={RelativeSource AncestorType=ToggleButton}}"
                                                         CommandParameter="{Binding}" />
                                                 <Button Content="5" FontFamily="Marlett"
                                                         DockPanel.Dock="Right" Padding="2" VerticalAlignment="Center"
+                                                        IsEnabled="{Binding UpIsEnabled}"
+                                                        Visibility="{Binding Tag, RelativeSource={RelativeSource AncestorType=ToggleButton}}"
                                                         Command="{Binding DataContext.MoveSourceUpCommand, RelativeSource={RelativeSource AncestorType=ToggleButton}}"
-                                                        CommandParameter="{Binding}" />
+                                                        CommandParameter="{Binding}" >
+                                                </Button>
                                                 <CheckBox IsChecked="{Binding Enabled}" DockPanel.Dock="Left"
-                                                            Content="{Binding Name}"
+                                                            Content="{Binding TranslatedName}"
                                                             Margin="3,2,3,2" VerticalAlignment="Center" HorizontalAlignment="Stretch"/>
                                             </DockPanel>
                                         </DataTemplate>
@@ -95,6 +103,7 @@
             <CheckBox
                 Content="{DynamicResource LOC_ESMETADATA_GetFavorites}"
                 IsChecked="{Binding Settings.ImportFavorite}"
+                HorizontalAlignment="Left"
                 ToolTip="{DynamicResource LOC_ESMETADATA_FavouritesHint}"/>
             <TextBlock
                 Text="&#xEFCA;" FontFamily="IcoFont" Margin="10,0,0,0"
@@ -104,28 +113,38 @@
             Content="{DynamicResource LOC_ESMETADATA_AutomaticlySelectImage}"
             IsChecked="{Binding Settings.SelectAutomaticly}"
             Margin="0,5,5,5"
+            HorizontalAlignment="Left"
         />
         <StackPanel Orientation="Vertical" Margin="30,0,0,5" IsEnabled="{Binding Settings.SelectAutomaticly}">
             <StackPanel Orientation="Horizontal" Margin="0,5,5,5">
-                <TextBlock Text="{DynamicResource LOC_ESMETADATA_ForIcon}" MinWidth="180"/>
+                <TextBlock Text="{DynamicResource LOC_ESMETADATA_ForIcon}"
+                                VerticalAlignment = "Center" MinWidth="180"/>
                 <ContentControl DataContext="{Binding Settings.IconSource}" IsTabStop="False"
-                                MinWidth="300" Template="{StaticResource SourceSelector}" />
+                                Tag="Visible"
+                                MinWidth="400" Template="{StaticResource SourceSelector}" />
             </StackPanel>
             <StackPanel Orientation="Horizontal" Margin="0,5,5,5">
-                <TextBlock Text="{DynamicResource LOC_ESMETADATA_ForCoverImage}" MinWidth="180"/>
-                <ContentControl DataContext="{Binding Settings.CoverImageSource}" IsTabStop="False"
-                                MinWidth="300"    Template="{StaticResource SourceSelector}" />
+                <TextBlock Text="{DynamicResource LOC_ESMETADATA_ForCoverImage}"
+                                VerticalAlignment = "Center"  MinWidth="180"/>
+                <ContentControl DataContext="{Binding Settings.CoverImageSource}"
+                                Tag="Visible"
+                                IsTabStop="False"
+                                MinWidth="400"    Template="{StaticResource SourceSelector}" />
             </StackPanel>
             <StackPanel Orientation="Horizontal" Margin="0,5,5,5">
-                <TextBlock Text="{DynamicResource LOC_ESMETADATA_ForBackgroundImage}" MinWidth="180"/>
-                <ContentControl DataContext="{Binding Settings.BackgroundImageSource}" IsTabStop="False"
-                                MinWidth="300" Template="{StaticResource SourceSelector}" />
+                <TextBlock Text="{DynamicResource LOC_ESMETADATA_ForBackgroundImage}"
+                                VerticalAlignment = "Center" MinWidth="180"/>
+                <ContentControl DataContext="{Binding Settings.BackgroundImageSource}"
+                                IsTabStop="False"
+                                Tag="Visible"
+                                MinWidth="400" Template="{StaticResource SourceSelector}" />
             </StackPanel>
         </StackPanel>
         <CheckBox
             Content="{DynamicResource LOC_ESMETADATA_DownscaleImage}"
             IsChecked="{Binding Settings.DownscaleImage}"
             Margin="0,5,5,5"
+            HorizontalAlignment="Left"
         />
         <StackPanel Orientation="Vertical" Margin="30,0,0,5" IsEnabled="{Binding Settings.DownscaleImage}">
             <StackPanel Orientation="Horizontal" Margin="0,5,5,5">
@@ -155,6 +174,7 @@
                 Content="{DynamicResource LOC_ESMETADATA_BestMatchWithDesc}"
                 IsChecked="{Binding Settings.BestMatchWithDesc}"
                 ToolTip="{DynamicResource LOC_ESMETADATA_BestMatchWithDescHint}"
+                HorizontalAlignment="Left"
             />
             <TextBlock Text="&#xEFCA;" FontFamily="IcoFont" Margin="10,0,0,0"
                 ToolTip="{DynamicResource LOC_ESMETADATA_BestMatchWithDescHint}"
@@ -165,6 +185,7 @@
                 Content="{DynamicResource LOC_ESMETADATA_NonStrictMediaSuggest}"
                 IsChecked="{Binding Settings.NonStrictMediaSuggest}"
                 ToolTip="{DynamicResource LOC_ESMETADATA_NonStrictMediaSuggestHint}"
+                HorizontalAlignment="Left"
             />
             <TextBlock Text="&#xEFCA;" FontFamily="IcoFont" Margin="10,0,0,0"
                 ToolTip="{DynamicResource LOC_ESMETADATA_NonStrictMediaSuggestHint}"
@@ -176,35 +197,64 @@
             IsChecked="{Binding Settings.Overwrite}"
             IsEnabled="{Binding Settings.IgnoreArticles}"
             Margin="0,5,5,5"
+            HorizontalAlignment="Left"
         />
+
+        <StackPanel Orientation="Horizontal" Margin="0,20,5,5">
+            <TextBlock Text="{DynamicResource LOC_ESMETADATA_InegrationWithExtrametadata}"
+                ToolTip="{DynamicResource LOC_ESMETADATA_ExtraMetadataIntegrationHint}" />
+            <TextBlock Text="&#xEFCA;" FontFamily="IcoFont" Margin="10,0,0,0" MinWidth="30"
+                ToolTip="{DynamicResource LOC_ESMETADATA_ExtraMetadataIntegrationHint}" />
+        </StackPanel>
+
         <StackPanel Orientation="Horizontal" Margin="0,5,5,5">
             <CheckBox
                 Content="{DynamicResource LOC_ESMETADATA_CopyExtraResources}"
-                IsChecked="{Binding Settings.CopyExtraMetadataTriple}"
-                IsThreeState="True"
-                ToolTip="{DynamicResource LOC_ESMETADATA_ExtraMetadataIntegrationHint}"
+                IsChecked="{Binding Settings.CopyExtraMetadata}"
+                Margin="0,5,5,5"
+                MinWidth="200"
+                HorizontalAlignment="Left"
             />
-            <TextBlock Text="&#xEFCA;" FontFamily="IcoFont" Margin="10,0,0,0"
-                ToolTip="{DynamicResource LOC_ESMETADATA_ExtraMetadataIntegrationHint}"
-            />
+            <Grid IsEnabled="{Binding Settings.CopyExtraMetadata}">
+            <ContentControl DataContext="{Binding Settings.ImportToExtraMetadata}"
+                IsTabStop="False"
+                Tag="Collapsed"
+                MinWidth="400" Template="{StaticResource SourceSelector}" />
+            </Grid>
         </StackPanel>
-        <ItemsControl ItemsSource="{Binding Settings.ExtraMetadataOptions}" >
-            <ItemsControl.ItemTemplate>
-                <DataTemplate>
-                    <CheckBox
-                        Content="{Binding TranslateName}"
-                        IsChecked="{Binding IsChecked}"
-                        Command="{Binding DataContext.Settings.CheckBoxChanged, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
-                        Margin="30,5,5,5"
-                    />
-                </DataTemplate>
-            </ItemsControl.ItemTemplate>
-        </ItemsControl>
         <CheckBox
             Content="{DynamicResource LOC_ESMETADATA_OverwriteExisting}"
             IsChecked="{Binding Settings.Overwrite}"
-            IsEnabled="{Binding Settings.CopyExtraMetadataOnLinks}"
+            IsEnabled="{Binding Settings.CopyExtraMetadata}"
             Margin="0,5,5,5"
+            HorizontalAlignment="Left"
+        />
+        <StackPanel Orientation="Horizontal" Margin="0,5,5,5">
+            <CheckBox
+                Content="{DynamicResource LOC_ESMETADATA_ImportLinks}"
+                IsChecked="{Binding Settings.ImportAsLinks}"
+                MinWidth="200"
+                Margin="0,5,5,5"
+                HorizontalAlignment="Left"
+            />
+            <Grid IsEnabled="{Binding Settings.ImportAsLinks}">
+                <ContentControl DataContext="{Binding Settings.ImportAsLinksOptions}"
+                    IsTabStop="False"
+                    Tag="Collapsed"
+                    MinWidth="400" Template="{StaticResource SourceSelector}" />
+            </Grid>
+        </StackPanel>
+        <CheckBox
+            Content="{DynamicResource LOC_ESMETADATA_ImportManual}"
+            IsChecked="{Binding Settings.ImportManual}"
+            Margin="0,5,5,5"
+            HorizontalAlignment="Left"
+        />
+        <CheckBox
+            Content="{DynamicResource LOC_ESMETADATA_KeepOriginalPath}"
+            IsChecked="{Binding Settings.KeepOriginalLinkPaths}"
+            Margin="0,5,5,5"
+            HorizontalAlignment="Left"
         />
     </StackPanel>
 </UserControl>

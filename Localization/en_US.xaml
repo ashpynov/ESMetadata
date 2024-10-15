@@ -2,7 +2,8 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:sys="clr-namespace:System;assembly=mscorlib">
 
-    <sys:String x:Key="LOC_ESMETADATA_CopyExtraResources">Copy additional media to ExtraMetadata game folder when 'Links' is providing</sys:String>
+    <sys:String x:Key="LOC_ESMETADATA_InegrationWithExtrametadata">Process additional media when 'Links' is providing:</sys:String>
+    <sys:String x:Key="LOC_ESMETADATA_CopyExtraResources">Copy to ExtraMetadata:</sys:String>
     <sys:String x:Key="LOC_ESMETADATA_OverwriteExisting">Overwrite existing files</sys:String>
     <sys:String x:Key="LOC_ESMETADATA_GetFavorites">Import 'Favorite' mark when 'Tags' is providing</sys:String>
     <sys:String x:Key="LOC_ESMETADATA_AutomaticlySelectImage">Automaticly select image during bulk loading with next priority:</sys:String>
@@ -33,10 +34,15 @@ EmulationStation Metadata Source may mark imported games during metadata importi
     <sys:String x:Key="LOC_ESMETADATA_SelectBezel">Select Bezel</sys:String>
     <sys:String x:Key="LOC_ESMETADATA_SelectFanart">Select Fanart</sys:String>
 
-    <sys:String x:Key="LOC_ESMETADATA_DownloadVideoTrailer">Copy Video</sys:String>
-    <sys:String x:Key="LOC_ESMETADATA_DownloadLogo">Copy Logo</sys:String>
-    <sys:String x:Key="LOC_ESMETADATA_DownloadBezel">Copy Bezel</sys:String>
-    <sys:String x:Key="LOC_ESMETADATA_DownloadFanart">Copy Fanart</sys:String>
+    <sys:String x:Key="LOC_ESMETADATA_Image">Image</sys:String>
+    <sys:String x:Key="LOC_ESMETADATA_Thumbnail">Thumbnail</sys:String>
+    <sys:String x:Key="LOC_ESMETADATA_Marquee">Marquee</sys:String>
+    <sys:String x:Key="LOC_ESMETADATA_VideoTrailer">Video</sys:String>
+    <sys:String x:Key="LOC_ESMETADATA_Logo">Logo</sys:String>
+    <sys:String x:Key="LOC_ESMETADATA_Bezel">Bezel</sys:String>
+    <sys:String x:Key="LOC_ESMETADATA_Fanart">Fanart</sys:String>
+    <sys:String x:Key="LOC_ESMETADATA_Boxback">Boxback</sys:String>
+    <sys:String x:Key="LOC_ESMETADATA_Manual">Manual</sys:String>
 
     <sys:String x:Key="LOC_ESMETADATA_BestMatchWithDesc">Best match should have Description</sys:String>
     <sys:String x:Key="LOC_ESMETADATA_BestMatchWithDescHint" xml:space="preserve">Missing `Description` field in EmulationStation record usually means that this game was automatically imported. This usually means that other field are missed too.
@@ -49,5 +55,9 @@ May give errors for sequel games as soon as e.g `Earthworm Jim` and `Earthworm J
 
 May wrongly suggest sequels.</sys:String>
     <sys:String x:Key="LOC_ESMETADATA_IgnoreArticles">Ignore a/an/the articles</sys:String>
+    <sys:String x:Key="LOC_ESMETADATA_ImportLinks">Import links to:</sys:String>
+    <sys:String x:Key="LOC_ESMETADATA_KeepOriginalPath">Keep original path of copied media</sys:String>
+    <sys:String x:Key="LOC_ESMETADATA_ImportManual">Import game manual</sys:String>
+
 
 </ResourceDictionary>

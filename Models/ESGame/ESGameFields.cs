@@ -13,7 +13,9 @@ namespace ESMetadata.Models.ESGame
         VideoTrailer,
         Logo,
         Bezel,
-        Fanart
+        Fanart,
+        Boxback,
+        Manual
     };
 
     public class ESGameField

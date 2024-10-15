@@ -20,6 +20,10 @@ namespace ESMetadata.Extensions
         {
             return !source.IsNullOrEmpty() ? source : fallback;
         }
+        public static IEnumerable<string> ToStrings<TEnum>(this IEnumerable<TEnum> source) where TEnum : Enum
+        {
+            return source.Select(l=> l.ToString());
+        }
         public static int GetUnorderedHashCode<T>(this IEnumerable<T> source)
         {
             List<int> codes = new List<int>();

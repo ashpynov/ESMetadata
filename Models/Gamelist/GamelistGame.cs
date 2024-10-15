@@ -62,6 +62,10 @@ namespace ESMetadata.Models.Gamelist
         public string Bezel { get; set; }
         [Path]
         public string Fanart { get; set; }
+        [Path]
+        public string Manual { get; set; }
+        [Path]
+        public string Boxback { get; set; }
         public string Rating { get; set; }
         public string ReleaseDate { get; set; }
         public string Developer { get; set; }

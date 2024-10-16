@@ -5,8 +5,10 @@
     <sys:String x:Key="LOC_ESMETADATA_InegrationWithExtrametadata">Process additional media when 'Links' is providing:</sys:String>
     <sys:String x:Key="LOC_ESMETADATA_CopyExtraResources">Copy to ExtraMetadata:</sys:String>
     <sys:String x:Key="LOC_ESMETADATA_OverwriteExisting">Overwrite existing files</sys:String>
-    <sys:String x:Key="LOC_ESMETADATA_GetFavorites">Import 'Favorite' mark when 'Tags' is providing</sys:String>
-    <sys:String x:Key="LOC_ESMETADATA_ImportGameStatistic">Import in game statistic when 'Tags' is providing</sys:String>
+
+    <sys:String x:Key="LOC_ESMETADATA_GetOnTag">Import additional information when 'Tags' is providing:</sys:String>
+    <sys:String x:Key="LOC_ESMETADATA_GetFavorites">Favorite mark</sys:String>
+    <sys:String x:Key="LOC_ESMETADATA_ImportGameStatistic">In-Game statistic</sys:String>
     <sys:String x:Key="LOC_ESMETADATA_AutomaticlySelectImage">Automaticly select image during bulk loading with next priority:</sys:String>
     <sys:String x:Key="LOC_ESMETADATA_ForIcon">Icon:</sys:String>
     <sys:String x:Key="LOC_ESMETADATA_ForCoverImage">Cover Image:</sys:String>

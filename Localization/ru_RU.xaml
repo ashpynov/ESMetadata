@@ -1,0 +1,68 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sys="clr-namespace:System;assembly=mscorlib">
+
+    <sys:String x:Key="LOC_ESMETADATA_InegrationWithExtrametadata">Обработка дополнительного медиа при предоставлении Ссылок:</sys:String>
+    <sys:String x:Key="LOC_ESMETADATA_CopyExtraResources">Копировать в ExtraMetadata:</sys:String>
+    <sys:String x:Key="LOC_ESMETADATA_OverwriteExisting">Перезаписать существующие файлы</sys:String>
+    <sys:String x:Key="LOC_ESMETADATA_GetOnTag">Импортировать дополнительные данные при предоставлении Тегов:</sys:String>
+    <sys:String x:Key="LOC_ESMETADATA_GetFavorites">Отмечать 'Избранные' игры</sys:String>
+    <sys:String x:Key="LOC_ESMETADATA_ImportGameStatistic">Ипортировать Игровую статистику</sys:String>
+    <sys:String x:Key="LOC_ESMETADATA_AutomaticlySelectImage">Автоматически выбирать изображение при массовой загрузке с приоритетом:</sys:String>
+    <sys:String x:Key="LOC_ESMETADATA_ForIcon">Иконка:</sys:String>
+    <sys:String x:Key="LOC_ESMETADATA_ForCoverImage">Обложка:</sys:String>
+    <sys:String x:Key="LOC_ESMETADATA_ForBackgroundImage">Фоновое изображение:</sys:String>
+    <sys:String x:Key="LOC_ESMETADATA_ExtraMetadataIntegrationHint"  xml:space="preserve">Такие ресурсы, как Видео или Логотип игры, предоставляются расширением ExtraMetadata и не поддерживаются штатно интерфейсом источников метаданных Playnite.
+
+Но библиотеки EmulationStation обычно содержат различные дополнительные медиа: видео игрового процесса, логотип игры, рамки, фанарт и т.д.
+
+Источник метаданных EmulationStation может автоматически копировать эти медиа-ресурсы в папку расширения ExtraMetadata во время импорта метаданных, если включен импорт ссылок для источника метаданных EmulationStation.
+
+Оригинальные пути к медиа-ресурсам будут сохранены в разделе Ссылки.</sys:String>
+
+    <sys:String x:Key="LOC_ESMETADATA_FavouritesHint"  xml:space="preserve">Отметка Избранное и загрузка Игровой статистики не поддерживаются штатно интерфейсом источников метаданных Playnite.
+
+Однако источник метаданных EmulationStation может отмечать игры как Избранные или импортировать игровую статистику, если включен импорт Тегов для источника и эта информация в настоящий момент отсутствует в базе Playnite.
+
+Оригинальные теги останутся неизменными</sys:String>
+
+    <sys:String x:Key="LOC_ESMETADATA_DownscaleImage">Пропорционально уменьшить изображение до следующего максимального размера:</sys:String>
+    <sys:String x:Key="LOC_ESMETADATA_DownscaleImageWidth" xml:space="preserve">x</sys:String>
+    <sys:String x:Key="LOC_ESMETADATA_DownscaleImageHeight" xml:space="preserve"> </sys:String>
+
+    <sys:String x:Key="LOC_ESMETADATA_SelectIcon">Выберите иконку</sys:String>
+    <sys:String x:Key="LOC_ESMETADATA_SelectCoverImage">Выберите обложку</sys:String>
+    <sys:String x:Key="LOC_ESMETADATA_SelectBackgroundImage">Выберите фоновое изображение</sys:String>
+    <sys:String x:Key="LOC_ESMETADATA_SelectVideoTrailer">Выберите видео</sys:String>
+    <sys:String x:Key="LOC_ESMETADATA_SelectLogo">Выберите логотип</sys:String>
+    <sys:String x:Key="LOC_ESMETADATA_SelectBezel">Выберите рамку</sys:String>
+    <sys:String x:Key="LOC_ESMETADATA_SelectFanart">Выберите фанарт</sys:String>
+
+    <sys:String x:Key="LOC_ESMETADATA_Image">Изображение</sys:String>
+    <sys:String x:Key="LOC_ESMETADATA_Thumbnail">Миниатюра</sys:String>
+    <sys:String x:Key="LOC_ESMETADATA_Marquee">Вывеска</sys:String>
+    <sys:String x:Key="LOC_ESMETADATA_VideoTrailer">Видео</sys:String>
+    <sys:String x:Key="LOC_ESMETADATA_Logo">Логотип</sys:String>
+    <sys:String x:Key="LOC_ESMETADATA_Bezel">Рамка</sys:String>
+    <sys:String x:Key="LOC_ESMETADATA_Fanart">Фанарт</sys:String>
+    <sys:String x:Key="LOC_ESMETADATA_Boxback">Задняя обложка</sys:String>
+    <sys:String x:Key="LOC_ESMETADATA_Manual">Руководство</sys:String>
+
+    <sys:String x:Key="LOC_ESMETADATA_BestMatchWithDesc">Лучшее совпадение должно иметь описание</sys:String>
+    <sys:String x:Key="LOC_ESMETADATA_BestMatchWithDescHint" xml:space="preserve">Отсутствие поля `Описание` в записи библиотеки EmulationStation обычно означает, что эта игра была импортирована автоматически. Скорее всего другие поля также отсутствуют.
+Включите эту опцию, чтобы расширить данные игры, используя вторую лучшую запись с полем `Описание`, если первая его не имеет.
+
+Может вызвать ошибки для игр-сиквелов, так как, например, `Earthworm Jim` и `Earthworm Jim 2` отличаются всего одной из двенадцати букв.</sys:String>
+
+    <sys:String x:Key="LOC_ESMETADATA_NonStrictMediaSuggest">Нестрогий выбор медиа</sys:String>
+    <sys:String x:Key="LOC_ESMETADATA_NonStrictMediaSuggestHint" xml:space="preserve">Менее строгий выбор записей для предложений медиа-ресурсов.
+
+Может неправильно предлагать сиквелы.</sys:String>
+    <sys:String x:Key="LOC_ESMETADATA_IgnoreArticles">Игнорировать артикли a/an/the</sys:String>
+    <sys:String x:Key="LOC_ESMETADATA_ImportLinks">Импортировать ссылки:</sys:String>
+    <sys:String x:Key="LOC_ESMETADATA_KeepOriginalPath">Сохранить оригинальный путь скопированных медиа</sys:String>
+    <sys:String x:Key="LOC_ESMETADATA_ImportManual">Импортировать руководство игры</sys:String>
+
+    <sys:String x:Key="LOC_ESMETADATA_HelpMe">Помогите мне!</sys:String>
+
+</ResourceDictionary>

@@ -4,6 +4,7 @@ using System.Windows.Controls;
 using System.ComponentModel;
 using ESMetadata.Settings;
 using ESMetadata.Models.ESGame;
+using ESMetadata.Models.Provider;
 using Playnite.SDK;
 using Playnite.SDK.Plugins;
 

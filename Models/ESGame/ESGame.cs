@@ -5,6 +5,7 @@ using Playnite.SDK.Plugins;
 using ESMetadata.Models.Gamelist;
 using ESMetadata.Settings;
 using ESMetadata.Extensions;
+using Playnite.SDK.Models;
 
 namespace ESMetadata.Models.ESGame
 {
@@ -66,23 +67,18 @@ namespace ESMetadata.Models.ESGame
 
             foreach (ESGameField f in actualFieldMap.Where(f=> !ImagesOnly || ImagesSources.Contains(f.Source)))
             {
-                if (f.Source == GamelistField.Name && game.Desc.IsNullOrEmpty() && Settings.BestMatchWithDesc)
+                if (f.Source == GamelistField.Name && game.Get(GamelistField.Desc).IsNullOrEmpty() && Settings.BestMatchWithDesc)
                 {
                     continue;
                 }
 
-                PropertyInfo prop = typeof(GamelistGame).GetProperty(f.Source.ToString());
-                if (prop is null)
-                {
-                    continue;
-                }
-                string value = prop.GetValue(game) as string;
+                string value = game.Get(f.Source);
 
                 if (value.IsNullOrEmpty())
                 {
                     continue;
                 }
-                bool isImage = ImagesSources.Contains(f.Source);
+
                 data.AddMissing(new ESGameField(f.Field, f.Source, f.LinkName, value));
             }
         }

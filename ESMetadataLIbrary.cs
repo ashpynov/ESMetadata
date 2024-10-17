@@ -71,7 +71,7 @@ namespace ESMetadata
 
             if(Settings.BestMatchWithDesc && gameData.GetField(MetadataField.Description).IsNullOrEmpty())
             {
-                LoadSameRateGame(ref similarGames, similarGames.FirstOrDefault(g => !g.Item1.Desc.IsNullOrEmpty()));
+                LoadSameRateGame(ref similarGames, similarGames.FirstOrDefault(g => !g.Item1.Get(GamelistField.Desc).IsNullOrEmpty()));
             }
 
             if (!IsBackgroundDownload && Settings.NonStrictMediaSuggest)
@@ -166,10 +166,10 @@ namespace ESMetadata
             if (IsBackgroundDownload)
             {
                 List<Tuple<GamelistGame,double>> byPath = GamelistGames
-                    .Where(es => es.Path.Equal(romPath))
+                    .Where(es => es.Get(GamelistField.Path).Equal(romPath))
                     .Select(es => new Tuple<GamelistGame, double>(es, 1.0))
                     .ToList();
-                if (byPath.Count > 0 && (!Settings.BestMatchWithDesc || !byPath.First().Item1.Desc.IsNullOrEmpty()))
+                if (byPath.Count > 0 && (!Settings.BestMatchWithDesc || !byPath.First().Item1.Get(GamelistField.Desc).IsNullOrEmpty()))
                 {
                     return byPath;
                 }
@@ -193,10 +193,10 @@ namespace ESMetadata
             string romName = game.Roms?.FirstOrDefault()?.Name;
             romName = !romName.IsNullOrEmpty() ? Fuzzy.SimplifyName(romName, ignoreArticles) : romName;
 
-            string esGameName = Fuzzy.SimplifyName(esGame.Name.ToLower(), ignoreArticles);
-            string esGamePath = Fuzzy.SimplifyName(Path.GetFileNameWithoutExtension(esGame.Path), ignoreArticles);
+            string esGameName = Fuzzy.SimplifyName(esGame.Get(GamelistField.Name).ToLower(), ignoreArticles);
+            string esGamePath = Fuzzy.SimplifyName(Path.GetFileNameWithoutExtension(esGame.Get(GamelistField.Path)), ignoreArticles);
 
-            max = Math.Max(max, romPath.Equal(esGame.Path) ? 1.1 : 0); //Force path match priority
+            max = Math.Max(max, romPath.Equal(esGame.Get(GamelistField.Path)) ? 1.1 : 0); //Force path match priority
             max = Math.Max(max, Fuzzy.Similarity(romName, esGameName, minSimilarity));
             max = Math.Max(max, Fuzzy.Similarity(gameName, esGameName, minSimilarity));
             max = Math.Max(max, Fuzzy.Similarity(romPathName, esGamePath, minSimilarity));

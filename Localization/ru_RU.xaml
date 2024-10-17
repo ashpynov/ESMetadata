@@ -40,13 +40,18 @@
 
     <sys:String x:Key="LOC_ESMETADATA_Image">Изображение</sys:String>
     <sys:String x:Key="LOC_ESMETADATA_Thumbnail">Миниатюра</sys:String>
-    <sys:String x:Key="LOC_ESMETADATA_Marquee">Вывеска</sys:String>
+    <sys:String x:Key="LOC_ESMETADATA_Marquee">Логотип</sys:String>
     <sys:String x:Key="LOC_ESMETADATA_VideoTrailer">Видео</sys:String>
     <sys:String x:Key="LOC_ESMETADATA_Logo">Логотип</sys:String>
     <sys:String x:Key="LOC_ESMETADATA_Bezel">Рамка</sys:String>
     <sys:String x:Key="LOC_ESMETADATA_Fanart">Фанарт</sys:String>
     <sys:String x:Key="LOC_ESMETADATA_Boxback">Задняя обложка</sys:String>
     <sys:String x:Key="LOC_ESMETADATA_Manual">Руководство</sys:String>
+    <sys:String x:Key="LOC_ESMETADATA_Box">Обложка</sys:String>
+    <sys:String x:Key="LOC_ESMETADATA_Magazine">Журнал</sys:String>
+    <sys:String x:Key="LOC_ESMETADATA_TitleShot">Титульный экран</sys:String>
+    <sys:String x:Key="LOC_ESMETADATA_Map">Карта</sys:String>
+
 
     <sys:String x:Key="LOC_ESMETADATA_BestMatchWithDesc">Лучшее совпадение должно иметь описание</sys:String>
     <sys:String x:Key="LOC_ESMETADATA_BestMatchWithDescHint" xml:space="preserve">Отсутствие поля `Описание` в записи библиотеки EmulationStation обычно означает, что эта игра была импортирована автоматически. Скорее всего другие поля также отсутствуют.

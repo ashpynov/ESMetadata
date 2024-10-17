@@ -9,6 +9,7 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.Globalization;
 using ESMetadata.Extensions;
+using System.Security.Cryptography;
 
 namespace ESMetadata.Models.Provider
 {
@@ -29,6 +30,18 @@ namespace ESMetadata.Models.Provider
         static private ReleaseDate? ToMetadataReleaseDate(string releaseDate)
         => !releaseDate.IsNullOrEmpty() && DateTime.TryParseExact(releaseDate, "yyyyMMddTHHmmss", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime date)
             ? new ReleaseDate(date) : default;
+
+        private IEnumerable<MetadataProperty> ToMetadataRegions(string regions, char spliter = default)
+        => ToMetadataProperty(regions, spliter)
+            ?.Select(region => new MetadataNameProperty(
+                PlayniteApi.Emulation.Regions
+                    .FirstOrDefault(r => r.Codes.Any(c => c.Equal(region.ToString())))
+                    ?.Name
+                    ?? region.ToString()
+            ))
+            ?.ToList()
+            ?? default;
+
 
         private MetadataFile ToMetadataFile(string path, int maxWidth = int.MaxValue, int maxHeight = int.MaxValue)
          => !path.IsNullOrEmpty() && File.Exists(path) ? ScaledImage(path, maxWidth, maxHeight) : default;

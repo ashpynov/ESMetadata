@@ -1,7 +1,10 @@
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Windows.Automation.Peers;
+using System.Windows.Input;
 using System.Xml;
 using System.Xml.Linq;
 using System.Xml.Schema;
@@ -18,6 +21,18 @@ namespace ESMetadata.Models.Gamelist
 {
     public class GamelistGame
     {
+        private class FieldValue
+        {
+            public GamelistField Field;
+            public string Value;
+            public FieldValue(GamelistField field, string value = null)
+            {
+                Field = field;
+                Value = value;
+            }
+        }
+        private readonly List<FieldValue> FieldValues = new List<FieldValue>();
+
         private readonly string root;
 
         public GamelistGame() { }
@@ -27,74 +42,16 @@ namespace ESMetadata.Models.Gamelist
             this.root = root;
             ReadXml(node);
         }
-        public GamelistGame Clone(GamelistGame from)
-        {
-            foreach(PropertyInfo prop in typeof(GamelistGame).GetProperties())
-            {
-                prop.SetValue(this, prop.GetValue(from));
-            }
-            return this;
-        }
 
-        public GamelistGame Extend(GamelistGame from)
-        {
-            foreach(PropertyInfo prop in typeof(GamelistGame).GetProperties().Where(p=>(p.GetValue(this) as string).IsNullOrEmpty()))
-            {
-                prop.SetValue(this, prop.GetValue(from));
-            }
-            return this;
-        }
-
-
-        [Path]
-        public string Path { get; set; }
-        public string Name { get; set; }
-        public string Desc { get; set; }
-        [Path]
-        public string Video { get; set; }
-        [Path]
-        public string Image { get; set; }
-        [Path]
-        public string Marquee { get; set; }
-        [Path]
-        public string Thumbnail { get; set; }
-        [Path]
-        public string Bezel { get; set; }
-        [Path]
-        public string Fanart { get; set; }
-        [Path]
-        public string Manual { get; set; }
-        [Path]
-        public string Boxback { get; set; }
-        public string Rating { get; set; }
-        public string ReleaseDate { get; set; }
-        public string Developer { get; set; }
-        public string Publisher { get; set; }
-        public string Genre { get; set; }
-        public string Region { get; set; }
-        public string Favorite { get; set; }
-        public string PlayCount { get; set; }
-        public string LastPlayed { get; set; }
-        public string GameTime { get; set; }
-
-        public XmlSchema GetSchema() => null;
-        public void WriteXml(XmlWriter writer) { }
+        static bool IsPath(GamelistField field) => field >= GamelistField.Path;
 
         public void ReadXml(XElement node)
         {
-            foreach (PropertyInfo prop in typeof(GamelistGame).GetProperties())
+            foreach(GamelistField field in Enum.GetValues(typeof(GamelistField)).Cast<GamelistField>())
             {
-                var element = node.Element(prop.Name.ToLower());
-                if (element != null)
+                if (node.Element(field.ToString().ToLower())?.Value is string value)
                 {
-                    if (prop.GetCustomAttribute<PathAttribute>() != null)
-                    {
-                        prop.SetValue(this, AbsPath(element.Value));
-                    }
-                    else
-                    {
-                        prop.SetValue(this, element.Value);
-                    }
+                    Set(field, IsPath(field) ? AbsPath(value) : value);
                 }
             }
         }
@@ -108,10 +65,23 @@ namespace ESMetadata.Models.Gamelist
             return System.IO.Path.Combine(root, path).Replace('/','\\').Replace("\\.\\","\\");
         }
 
-        public string Get(string property)
+        public string Get(GamelistField field, string fallback=default)
         {
-            return typeof(GamelistGame).GetProperty(property)?.GetValue(this) as string;
+            return FieldValues.FirstOrDefault(t => t.Field == field)?.Value ?? fallback;
         }
+
+        public void Set(GamelistField field, string value)
+        {
+            if ( FieldValues.FirstOrDefault(t => t.Field == field) is FieldValue item )
+            {
+                item.Value = value;
+            }
+            else
+            {
+                FieldValues.Add(new FieldValue(field, value));
+            }
+        }
+
     }
 }
 

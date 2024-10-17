@@ -12,13 +12,17 @@ namespace ESMetadata.Models.ESGame
         {
             { MetadataField.Name,               GamelistField.Name },
             { MetadataField.Description,        GamelistField.Desc },
+            { MetadataField.CoverImage,         GamelistField.Box },
             { MetadataField.CoverImage,         GamelistField.Thumbnail },
             { MetadataField.CoverImage,         GamelistField.Image },
+            { MetadataField.CoverImage,         GamelistField.TitleShot },
             { MetadataField.Icon,               GamelistField.Thumbnail},
+            { MetadataField.Icon,               GamelistField.Box},
             { MetadataField.Icon,               GamelistField.Image},
             { MetadataField.Icon,               GamelistField.Marquee },
-            { MetadataField.BackgroundImage,    GamelistField.Image},
             { MetadataField.BackgroundImage,    GamelistField.Fanart },
+            { MetadataField.BackgroundImage,    GamelistField.Image},
+            { MetadataField.BackgroundImage,    GamelistField.TitleShot },
             { MetadataField.Genres,             GamelistField.Genre },
             { MetadataField.Region,             GamelistField.Region },
             { MetadataField.ReleaseDate,        GamelistField.ReleaseDate },
@@ -32,11 +36,16 @@ namespace ESMetadata.Models.ESGame
             { MetadataField.Links,              GamelistField.Bezel,      LinkField.Bezel },
             { MetadataField.Links,              GamelistField.Boxback,    LinkField.Boxback },
             { MetadataField.Links,              GamelistField.Manual,     LinkField.Manual },
+            { MetadataField.Links,              GamelistField.Magazine,   LinkField.Magazine },
+            { MetadataField.Links,              GamelistField.Map,        LinkField.Map },
             { MetadataField.Tags,               GamelistField.Favorite },
             { MetadataField.Tags,               GamelistField.PlayCount },
             { MetadataField.Tags,               GamelistField.LastPlayed },
             { MetadataField.Tags,               GamelistField.GameTime },
+            { MetadataField.Tags,               GamelistField.AdultGame },
+            { MetadataField.Tags,               GamelistField.Kidgame },
         };
+
         private static readonly List<MetadataField> ImagesField = new List<MetadataField>()
             {
                 MetadataField.Icon,

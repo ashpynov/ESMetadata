@@ -81,9 +81,6 @@ namespace ESMetadata.Models.Provider
 
             Directory.CreateDirectory(Path.GetDirectoryName(destPath));
 
-            // TODO stop currently played ExtraMetadata
-
-
             try
             {
                 if (File.Exists(destPath))
@@ -92,7 +89,10 @@ namespace ESMetadata.Models.Provider
                 }
                 File.Copy(path, destPath, true);
             }
-            catch { }
+            catch (Exception e)
+            {
+                ESMetadata.PlayniteApi.Dialogs.ShowErrorMessage($"Can't Copy: \n{e.InnerException?.Message ?? e.Message}");
+            }
         }
     }
 }

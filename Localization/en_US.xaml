@@ -48,6 +48,10 @@ Original tags will be unchanged</sys:String>
     <sys:String x:Key="LOC_ESMETADATA_Fanart">Fanart</sys:String>
     <sys:String x:Key="LOC_ESMETADATA_Boxback">Boxback</sys:String>
     <sys:String x:Key="LOC_ESMETADATA_Manual">Manual</sys:String>
+    <sys:String x:Key="LOC_ESMETADATA_Box">Box</sys:String>
+    <sys:String x:Key="LOC_ESMETADATA_Magazine">Magazine</sys:String>
+    <sys:String x:Key="LOC_ESMETADATA_TitleShot">Title screen</sys:String>
+    <sys:String x:Key="LOC_ESMETADATA_Map">Map</sys:String>
 
     <sys:String x:Key="LOC_ESMETADATA_BestMatchWithDesc">Best match should have Description</sys:String>
     <sys:String x:Key="LOC_ESMETADATA_BestMatchWithDescHint" xml:space="preserve">Missing `Description` field in EmulationStation record usually means that this game was automatically imported. This usually means that other field are missed too.

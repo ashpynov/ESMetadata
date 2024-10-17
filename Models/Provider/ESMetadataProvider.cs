@@ -61,7 +61,7 @@ namespace ESMetadata.Models.Provider
         => ToMetadataProperty(esLibrary.Game.GetField(MetadataField.Genres), '/');
 
         public override IEnumerable<MetadataProperty> GetRegions(GetMetadataFieldArgs args)
-        => ToMetadataProperty(esLibrary.Game.GetField(MetadataField.Region), '/');
+        => ToMetadataRegions(esLibrary.Game.GetField(MetadataField.Region), ',');
 
         public override ReleaseDate? GetReleaseDate(GetMetadataFieldArgs args)
         => ToMetadataReleaseDate(esLibrary.Game.GetField(MetadataField.ReleaseDate));

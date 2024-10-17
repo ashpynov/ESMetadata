@@ -15,7 +15,9 @@ namespace ESMetadata.Models.ESGame
         Bezel,
         Fanart,
         Boxback,
-        Manual
+        Manual,
+        Map,
+        Magazine,
     };
 
     public class ESGameField

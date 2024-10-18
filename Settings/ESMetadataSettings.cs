@@ -1,6 +1,7 @@
 ﻿using ESMetadata.Extensions;
 using ESMetadata.Models;
 using ESMetadata.Models.ESGame;
+using ESMetadata.Views;
 using Playnite.SDK;
 using Playnite.SDK.Data;
 using Playnite.SDK.Plugins;
@@ -10,7 +11,10 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Configuration;
 using System.Drawing;
+using System.IO;
 using System.Linq;
+using System.Reflection;
+using System.Security.Principal;
 using System.Windows.Converters;
 
 
@@ -180,6 +184,27 @@ namespace ESMetadata.Settings
                 settings = value;
                 OnPropertyChanged();
             }
+        }
+
+        public RelayCommand ShowHelpCommand
+        {
+            get => new RelayCommand(() =>
+            {
+                var markdownView = new MarkdownView();
+
+                string lang = ESMetadata.PlayniteApi.ApplicationSettings.Language;
+                string extensionPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().GetName().CodeBase).Replace(@"file:\","");
+
+                string file = Path.Combine(extensionPath, "Help", $"README.{lang}.md");
+                file = !File.Exists(file) ? Path.Combine(extensionPath, "README.md") : file;
+
+                if ( !File.Exists(file))
+                {
+                    return;
+                }
+
+                markdownView.LoadMarkdown(file);
+            });
         }
 
         public ESMetadataSettingsViewModel(ESMetadata plugin)

@@ -99,7 +99,19 @@
                 <Setter Property="MaxWidth" Value="500" />
             </Style>
         </StackPanel.Resources>
-
+        <Grid MaxWidth="600" HorizontalAlignment="Left">
+            <TextBlock
+                    VerticalAlignment="Center"
+                    HorizontalAlignment="Right"
+                    TextAlignment="Right"
+                    Width="600"
+                    ToolTip="{DynamicResource LOC_ESMETADATA_HelpMe}">
+                <Hyperlink
+                        Command="{Binding ShowHelpCommand}">
+                    <Run Text="{DynamicResource LOC_ESMETADATA_HelpMe}" />
+                </Hyperlink>
+            </TextBlock>
+        </Grid>
         <CheckBox
             Content="{DynamicResource LOC_ESMETADATA_AutomaticlySelectImage}"
             IsChecked="{Binding Settings.SelectAutomaticly}"

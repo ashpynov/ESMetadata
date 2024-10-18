@@ -69,5 +69,6 @@ May wrongly suggest sequels.</sys:String>
     <sys:String x:Key="LOC_ESMETADATA_ImportManual">Import game manual</sys:String>
 
     <sys:String x:Key="LOC_ESMETADATA_HelpMe">Help me!</sys:String>
+    <sys:String x:Key="LOC_ESMETADATA_HelpMeTitle">About EmulationStation Metadata Source</sys:String>
 
 </ResourceDictionary>

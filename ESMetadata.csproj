@@ -12,6 +12,7 @@
     <ApplicationDefinition Remove="App.xaml" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="HtmlRenderer.WPF" Version="1.5.0.6" />
     <PackageReference Include="PlayniteSDK" Version="6.11.0" />
     <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
   </ItemGroup>
@@ -36,8 +37,18 @@
       </None>
   </ItemGroup>
   <ItemGroup>
+    <None Include="Help/*.*">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+ </ItemGroup>
+  <ItemGroup>
       <None Include="LICENSE">
           <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="README.md">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+</ItemGroup>
 </Project>

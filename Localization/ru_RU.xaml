@@ -69,5 +69,6 @@
     <sys:String x:Key="LOC_ESMETADATA_ImportManual">Импортировать руководство игры</sys:String>
 
     <sys:String x:Key="LOC_ESMETADATA_HelpMe">Помогите мне!</sys:String>
+    <sys:String x:Key="LOC_ESMETADATA_HelpMeTitle">Об источнике данных EmulationStation</sys:String>
 
 </ResourceDictionary>
